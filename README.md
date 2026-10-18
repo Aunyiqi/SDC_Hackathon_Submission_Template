@@ -2,78 +2,105 @@
 
 > A one-sentence description of what your project does and who it is for.
 
-**Team Name:** Your Team Name
-**Hackathon Track:** e.g. AI / Sustainability / FinTech / Open Innovation
-**Demo Video:** [Link to video](https://example.com)
-**Live Demo:** [Link to deployed app](https://example.com) *(optional)*
+---
+
+## Team Information
+
+| Field                  | Details                                     |
+| ---------------------- | ------------------------------------------- |
+| **Team Name**          | Your Team Name                              |
+| **Team Domain**        | Domain 1 / Domain 2 *(choose one)*          |
+| **SDG Track (1–17)**   | e.g. SDG 11 — Sustainable Cities and Communities |
+| **Team Leader**        | Leader Name                                 |
+| **University**         | University Name(s)                          |
+| **Number of Members**  | e.g. 4                                      |
+
+## Links
+
+| Resource          | Link                                           |
+| ----------------- | ---------------------------------------------- |
+| GitHub Repository | https://github.com/your-username/your-project  |
+| Replit Project    | https://replit.com/@your-username/your-project |
+| Live Demo         | https://your-project.replit.app                |
+| RunPod Endpoint   | https://api.runpod.ai/v2/your-endpoint-id      |
+| Slide Deck        | https://example.com/slides                     |
+| Demo Video        | https://example.com/demo-video                 |
 
 ---
 
-## Table of Contents
+## Overview
 
-1. [Problem Statement](#problem-statement)
-2. [Solution](#solution)
-3. [Key Features](#key-features)
-4. [Tech Stack](#tech-stack)
-5. [Architecture](#architecture)
-6. [Getting Started](#getting-started)
-7. [Usage](#usage)
-8. [Project Structure](#project-structure)
-9. [Challenges & Learnings](#challenges--learnings)
-10. [Future Improvements](#future-improvements)
-11. [Team](#team)
-12. [License](#license)
+### Problem
+
+Describe the real-world problem you are solving in 2–4 sentences. Who is affected, and why does it matter?
+
+### Solution
+
+Explain how your project uses AI to solve the problem and what makes it valuable.
+
+### Key Features
+
+- **Feature 1** — Short description.
+- **Feature 2** — Short description.
+- **Feature 3** — Short description.
+
+### Tech Stack
+
+| Layer         | Technology                   |
+| ------------- | ---------------------------- |
+| Frontend      | e.g. HTML, React             |
+| Backend       | e.g. Python, Flask / FastAPI |
+| Database      | e.g. PostgreSQL, SQLite      |
+| AI / Compute  | RunPod (GPU)                 |
+| Hosting / Dev | Replit                       |
 
 ---
 
-## Problem Statement
-
-Describe the problem you are solving in 2–4 sentences.
-
-- Who is affected by this problem?
-- Why does it matter?
-- What are the current gaps in existing solutions?
-
-## Solution
-
-Explain how your project addresses the problem. Focus on the core idea and the value it delivers, not implementation details.
-
-![Screenshot or banner](docs/screenshot.png)
-
-## Key Features
-
-- **Feature 1** — Short description of what it does.
-- **Feature 2** — Short description of what it does.
-- **Feature 3** — Short description of what it does.
-
-## Tech Stack
-
-| Layer      | Technology                 |
-| ---------- | -------------------------- |
-| Frontend   | e.g. React, Next.js        |
-| Backend    | e.g. Python, FastAPI       |
-| Database   | e.g. PostgreSQL, Firebase  |
-| AI / ML    | e.g. Claude API, PyTorch   |
-| Deployment | e.g. Vercel, Docker        |
-
-## Architecture
-
-Briefly describe how the components interact. A diagram is highly recommended.
+## Project Structure
 
 ```
-User ──► Frontend ──► Backend API ──► Database
-                          │
-                          └──► External Services / AI Model
+.
+├── docs/                    # Screenshots, diagrams
+├── runpod/
+│   └── handler.py           # RunPod serverless handler (GPU workload)
+├── src/
+│   ├── main.py              # Application entry point
+│   └── utils.py             # Helper functions
+├── submission/              # Required submission documents
+│   ├── REPLIT PROOF OF USE.pdf
+│   ├── RUNPOD PROOF OF USE.pdf
+│   └── Submission Template SDC Hackathon.pdf
+├── tests/
+│   └── test_utils.py        # Unit tests
+├── .env.example             # Example environment variables
+├── .gitignore
+├── .replit                  # Replit run configuration
+├── LICENSE
+├── requirements.txt         # Python dependencies
+└── README.md
 ```
 
-## Getting Started
+### Architecture
 
-### Prerequisites
+```
+User ──► Replit (App / API) ──► RunPod Endpoint (GPU model)
+                │
+                └──► Response returned to user
+```
 
-- Python 3.10+
-- Git
+---
 
-### Installation
+## How to Run
+
+### Option 1 — Run on Replit (Recommended)
+
+1. Open the [Replit Project](https://replit.com/@your-username/your-project), or import this repository via **Create Repl → Import from GitHub**.
+2. Open the **Secrets** tab (🔒) and add the variables listed in `.env.example`:
+   - `RUNPOD_API_KEY`
+   - `RUNPOD_ENDPOINT_ID`
+3. Click **Run**. Replit uses the `.replit` file to start `python src/main.py`.
+
+### Option 2 — Run Locally
 
 ```bash
 # 1. Clone the repository
@@ -88,12 +115,9 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 4. Configure environment variables
-cp .env.example .env
-```
+cp .env.example .env            # then fill in your values
 
-### Run the Project
-
-```bash
+# 5. Run the app
 python src/main.py
 ```
 
@@ -103,63 +127,70 @@ python src/main.py
 python -m unittest discover tests
 ```
 
-## Usage
+---
 
-Explain how to use the project, with examples.
+## How We Use Replit *(Required)*
+
+Describe how your team used Replit. For example:
+
+- **Development:** Collaborative coding in a shared Repl using Multiplayer.
+- **Hosting:** The app is deployed with Replit Deployments at the Live Demo link above.
+- **Secrets:** API keys are stored in Replit Secrets, never in the code.
+
+📄 Proof of use: [`submission/REPLIT PROOF OF USE.pdf`](submission/REPLIT%20PROOF%20OF%20USE.pdf)
+
+## How We Use RunPod *(Required)*
+
+Describe how your team used RunPod. For example:
+
+- **Workload:** Model inference (e.g. text generation, image processing) runs on a RunPod GPU.
+- **Setup:** `runpod/handler.py` is deployed as a **RunPod Serverless Endpoint**.
+- **Integration:** The Replit app sends requests to the endpoint using `RUNPOD_API_KEY` and `RUNPOD_ENDPOINT_ID`.
+
+Example request:
 
 ```bash
-$ python src/main.py
-Welcome to Project Name!
-Result: ...
+curl -X POST https://api.runpod.ai/v2/$RUNPOD_ENDPOINT_ID/runsync \
+  -H "Authorization: Bearer $RUNPOD_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"prompt": "Hello"}}'
 ```
 
-## Project Structure
+📄 Proof of use: [`submission/RUNPOD PROOF OF USE.pdf`](submission/RUNPOD%20PROOF%20OF%20USE.pdf)
 
-```
-.
-├── docs/                 # Screenshots, diagrams, presentation slides
-├── src/
-│   ├── main.py           # Application entry point
-│   └── utils.py          # Helper functions
-├── tests/
-│   └── test_utils.py     # Unit tests
-├── .env.example          # Example environment variables
-├── .gitignore
-├── requirements.txt      # Python dependencies
-└── README.md
-```
+---
 
 ## Challenges & Learnings
 
-- What technical challenges did you face, and how did you overcome them?
-- What did your team learn during the hackathon?
+- What challenges did you face, and how did you overcome them?
+- What did your team learn?
 
 ## Future Improvements
 
-- [ ] Planned feature or improvement 1
-- [ ] Planned feature or improvement 2
-- [ ] Planned feature or improvement 3
+- [ ] Improvement 1
+- [ ] Improvement 2
 
 ## Team
 
-| Name        | Role                  | GitHub                                   |
-| ----------- | --------------------- | ---------------------------------------- |
-| Member Name | Team Lead / Backend   | [@username](https://github.com/username) |
-| Member Name | Frontend              | [@username](https://github.com/username) |
-| Member Name | Design / Presentation | [@username](https://github.com/username) |
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+| Name        | Role                | GitHub                                   |
+| ----------- | ------------------- | ---------------------------------------- |
+| Member Name | Team Lead / Backend | [@username](https://github.com/username) |
+| Member Name | Frontend            | [@username](https://github.com/username) |
+| Member Name | AI / RunPod         | [@username](https://github.com/username) |
 
 ---
 
 ## Submission Checklist
 
-Before submitting, make sure you have:
+- [ ] Team name, domain (Domain 1 / Domain 2) and SDG track filled in
+- [ ] Slide deck link added
+- [ ] Demo video link added
+- [ ] Replit used, with proof of use in `submission/`
+- [ ] RunPod used, with proof of use in `submission/`
+- [ ] Submission template completed in `submission/`
+- [ ] "How to Run" steps verified
+- [ ] No API keys or secrets committed to the repository
 
-- [ ] Replaced all placeholder text in this README
-- [ ] Added a demo video link
-- [ ] Included at least one screenshot in `docs/`
-- [ ] Verified the project runs using the steps in [Getting Started](#getting-started)
-- [ ] Removed any secrets or API keys from the repository
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
