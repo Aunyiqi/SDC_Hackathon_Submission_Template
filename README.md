@@ -67,9 +67,10 @@ Explain how your project uses AI to solve the problem and what makes it valuable
 │   ├── main.py              # Application entry point
 │   └── utils.py             # Helper functions
 ├── submission/              # Required submission documents
-│   ├── REPLIT PROOF OF USE.pdf
-│   ├── RUNPOD PROOF OF USE.pdf
-│   └── Submission Template SDC Hackathon.pdf
+│   ├── SDC2026_TeamName_Preliminary.pdf      # Preliminary submission
+│   ├── SDC2026_TeamName_TechDeclaration.pdf  # Technology declaration
+│   ├── SDC2026_TeamName_Replit_POU.pdf       # Replit proof of use
+│   └── SDC2026_TeamName_Runpod_POU.pdf       # RunPod proof of use
 ├── tests/
 │   └── test_utils.py        # Unit tests
 ├── .env.example             # Example environment variables
@@ -137,7 +138,7 @@ Describe how your team used Replit. For example:
 - **Hosting:** The app is deployed with Replit Deployments at the Live Demo link above.
 - **Secrets:** API keys are stored in Replit Secrets, never in the code.
 
-📄 Proof of use: [`submission/REPLIT PROOF OF USE.pdf`](submission/REPLIT%20PROOF%20OF%20USE.pdf)
+📄 Proof of use: [`submission/SDC2026_TeamName_Replit_POU.pdf`](submission/SDC2026_TeamName_Replit_POU.pdf)
 
 ## How We Use RunPod *(Required)*
 
@@ -156,7 +157,7 @@ curl -X POST https://api.runpod.ai/v2/$RUNPOD_ENDPOINT_ID/runsync \
   -d '{"input": {"prompt": "Hello"}}'
 ```
 
-📄 Proof of use: [`submission/RUNPOD PROOF OF USE.pdf`](submission/RUNPOD%20PROOF%20OF%20USE.pdf)
+📄 Proof of use: [`submission/SDC2026_TeamName_Runpod_POU.pdf`](submission/SDC2026_TeamName_Runpod_POU.pdf)
 
 ---
 
@@ -187,7 +188,9 @@ curl -X POST https://api.runpod.ai/v2/$RUNPOD_ENDPOINT_ID/runsync \
 - [ ] Demo video link added
 - [ ] Replit used, with proof of use in `submission/`
 - [ ] RunPod used, with proof of use in `submission/`
-- [ ] Submission template completed in `submission/`
+- [ ] Preliminary submission completed (`SDC2026_TeamName_Preliminary.pdf`)
+- [ ] Technology declaration completed (`SDC2026_TeamName_TechDeclaration.pdf`)
+- [ ] Submission files renamed with your team name (replace `TeamName`)
 - [ ] "How to Run" steps verified
 - [ ] No API keys or secrets committed to the repository
 
