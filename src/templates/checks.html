@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Supplier Checks · Vortex OrderGuard{% endblock %}
+{% block content %}
+<div class="page-heading d-flex flex-wrap justify-content-between align-items-start gap-3">
+  <div><h1>Supplier Checks</h1><p class="text-secondary mb-0">Search, filter and review purchasing exception cases.</p></div>
+  <a class="btn btn-primary px-4" href="{{ url_for('new_case') }}">+ Create</a>
+</div>
+
+<section class="panel mb-4">
+  <form method="get" class="filter-bar">
+    <div class="flex-grow-1">
+      <label class="form-label fw-semibold">Search</label>
+      <input class="form-control" name="q" value="{{ query }}" placeholder="Search supplier or case #">
+    </div>
+    <div class="filter-status">
+      <label class="form-label fw-semibold">Status</label>
+      <select class="form-select" name="status">
+        {% for value, label in [('ALL','All statuses'),('NEEDS_CLARIFICATION','Needs clarification'),('PENDING_APPROVAL','Pending approval'),('APPROVED','Approved'),('REJECTED','Rejected'),('MATCHED','Matched')] %}
+        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-primary align-self-end px-4" type="submit">Apply Filter</button>
+    <a class="btn btn-outline-secondary align-self-end" href="{{ url_for('checks') }}">Reset</a>
+  </form>
+</section>
+
+<div class="action-tabs mb-3">
+  <span class="action-tab active">All <b>{{ pending_actions.all }}</b></span>
+  <span class="action-tab clarify">Clarify <b>{{ pending_actions.clarify }}</b></span>
+  <span class="action-tab review">Review <b>{{ pending_actions.review }}</b></span>
+  <span class="action-tab approved">Approved <b>{{ pending_actions.approved }}</b></span>
+</div>
+
+<section class="panel">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 data-table">
+      <thead><tr><th>Case</th><th>Supplier</th><th>Status</th><th>Trust Gate</th><th>Proposed action</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for case in cases %}
+        {% set gate = case.comparison.trust_gate %}
+        <tr>
+          <td><strong>#{{ case.id }}</strong></td>
+          <td>{{ case.supplier_name }}</td>
+          <td><span class="status-badge status-{{ 'warning' if case.status == 'NEEDS_CLARIFICATION' else 'info' if case.status == 'PENDING_APPROVAL' else 'success' if case.status in ['APPROVED','MATCHED'] else 'danger' }}">{{ case.status.replace('_',' ') }}</span></td>
+          <td><span class="trust-pill trust-{{ gate.level|lower }}">{{ gate.score }} · {{ gate.level }}</span></td>
+          <td class="small text-secondary">{{ case.proposed_action }}</td>
+          <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('case_detail', case_id=case.id) }}">View</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="empty-row">No records match this search/filter.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
