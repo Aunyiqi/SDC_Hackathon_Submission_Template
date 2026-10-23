@@ -6,16 +6,28 @@ from pathlib import Path
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
 from ai_extractor import AIExtractionUnavailable, extract_supplier_message
+from orbyte_adapter import build_pending_action_summary, filter_cases
 from supplier_radar import build_supplier_radar
 from workflow import OrderGuardService
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = os.getenv("ORDERGUARD_DB", str(BASE_DIR / "orderguard.db"))
+DEMO_ORG = os.getenv("ORDERGUARD_ORG", "Vortex Demo SME")
+DEMO_USER = os.getenv("ORDERGUARD_USER", "Owner Demo")
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "vortex-orderguard-demo")
 service = OrderGuardService(DB_PATH)
+
+
+@app.context_processor
+def inject_demo_context():
+    return {
+        "demo_org": DEMO_ORG,
+        "demo_user": DEMO_USER,
+        "integration_mode": "Simulated Orbyte workspace",
+    }
 
 
 def _number(name: str) -> float:
@@ -30,8 +42,33 @@ def dashboard():
         cases=cases,
         outbox=service.get_outbox(),
         summary=service.get_dashboard_summary(),
+        pending_actions=build_pending_action_summary(cases),
         supplier_radar=build_supplier_radar(cases, service.get_supplier_insight),
         ai_enabled=bool(os.getenv("DEEPSEEK_API_KEY")),
+    )
+
+
+@app.get("/checks")
+def checks():
+    query = request.args.get("q", "")
+    status = request.args.get("status", "ALL")
+    cases = service.list_cases()
+    return render_template(
+        "checks.html",
+        cases=filter_cases(cases, query=query, status=status),
+        query=query,
+        selected_status=status.upper(),
+        pending_actions=build_pending_action_summary(cases),
+    )
+
+
+@app.get("/reports")
+def reports():
+    cases = service.list_cases()
+    return render_template(
+        "reports.html",
+        summary=service.get_dashboard_summary(),
+        supplier_radar=build_supplier_radar(cases, service.get_supplier_insight),
     )
 
 
