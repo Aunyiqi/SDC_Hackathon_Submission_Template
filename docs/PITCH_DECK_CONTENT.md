@@ -2,6 +2,8 @@
 
 Use this as the content source for the preliminary pitch deck. Keep any measured-impact numbers honest: replace placeholders only after the team has actually timed or tested the prototype.
 
+Research and reference notes were updated on **24 October 2026**. Use the linked citations in slide footers or an appendix; the complete evidence and limitations are in [Research and References](RESEARCH_AND_REFERENCES.md).
+
 ## Slide 1 — Vortex OrderGuard
 
 **Catch supplier discrepancies before they become expensive mistakes.**
@@ -16,7 +18,11 @@ Suggested visual: OrderGuard dashboard with the Money at Risk and Trust Gate car
 
 ## Slide 2 — The SME Problem
 
-Malaysian micro and small businesses may still check purchasing records manually across WhatsApp-style messages, spreadsheets, paper receiving notes and supplier invoices.
+**Published context:** Malaysian MSMEs contributed **39.7% of GDP and 48.7% of employment in 2025**; DOSM published these figures on 30 July 2026. These totals are not the product's addressable market. [[1]](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025)
+
+The World Bank's 2022 analysis found limited use of complex productivity solutions and end-to-end digital transactions among Malaysian SMEs. This is dated structural context, not a current survey of invoice errors. [[2]](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness)
+
+**Problem hypothesis to validate:** some micro/small food-service operators may check purchasing records manually across messages, spreadsheets, receiving notes and invoices. Do not present this as an interview finding.
 
 A staff member may need to answer questions such as:
 
@@ -26,7 +32,7 @@ A staff member may need to answer questions such as:
 - Has this supplier-item combination had the same issue before?
 - Who is allowed to approve the follow-up?
 
-The problem is not only data entry. The recurring burden is **manual cross-checking, repeated follow-up and inconsistent exception handling**.
+The proposed problem is not only data entry: it is **manual cross-checking, repeated follow-up and inconsistent exception handling**. The frequency and cost of that burden remain to be established.
 
 Do not claim interview or market-validation results until the team has actually collected them.
 
@@ -52,6 +58,8 @@ The prototype currently supports:
 - Supplier Exception Radar
 
 ## Slide 4 — What Makes It Different
+
+**Positioning boundary:** three-way matching and exception handling already exist in Microsoft Dynamics and institutional AP workflows. [[3]](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) [[4]](https://financialservices.ecu.edu/invoice-matching-ap-team-step-by-step-guide/) We are testing the usefulness of a focused review experience, not claiming a new accounting method or proven superiority.
 
 ### 1. AI where it adds value
 AI helps transform informal supplier text into structured suggestions. It does not decide payments, calculate discrepancies or approve actions.
@@ -147,7 +155,7 @@ No live Orbyte API is required for the prototype; integration is represented thr
 
 OrderGuard is intentionally not a fully autonomous financial agent.
 
-- Staff may submit records.
+- The demo operator unlocks data-changing controls; public visitors are read-only.
 - Consequential supplier clarification requires owner approval.
 - Ambiguous units block approval.
 - AI output must be human-confirmed.
@@ -158,6 +166,8 @@ OrderGuard is intentionally not a fully autonomous financial agent.
 - Synthetic demo data is used.
 
 Automated tests cover core discrepancy, Trust Gate, approval, duplicate-action and supplier-intelligence behavior.
+
+**Research rationale:** NIST discusses confidently incorrect AI output and evaluation against ground truth. [[5]](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) OWASP recommends output validation, limited permissions and human approval for high-impact actions. [[6]](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf) A shared demo-owner code is not production RBAC, and these sources do not certify the application.
 
 ## Slide 8 — Orbyte Fit and Reusability
 
@@ -184,6 +194,8 @@ The same core engine could be configured for restaurants, retailers, small whole
 
 Primary SDG: **SDG 8 — Decent Work and Economic Growth**
 
+Target **8.2** links productivity to technological upgrading and innovation; **8.3** includes productive activity and MSME growth. This is intended alignment, not measured SDG impact. [[7]](https://sdgs.un.org/goals/goal8)
+
 Relevant direction:
 
 - Improve SME operational productivity through digital workflow automation.
@@ -197,13 +209,15 @@ Recommended primary KPI:
 
 Team action:
 
-1. Time the same synthetic cases manually.
-2. Time them using OrderGuard.
-3. Report the actual baseline and percentage difference.
+1. Define a labeled synthetic task set and start/end rules that include human review.
+2. Counterbalance manual-first/app-first order using equivalent sets; retain failed attempts.
+3. Report actual baseline/app times, sample size, errors and the percentage difference.
 
 Do not place an invented percentage on this slide. Insert the measured value only after testing.
 
 Secondary measurements can include discrepancy-detection accuracy, unnecessary alerts, owner-control tests and time required for a new tester to learn the workflow.
+
+The [validation protocol](RESEARCH_AND_REFERENCES.md#5-proposed-validation--not-completed-research) proposes a small pilot. It has **not** been conducted. Passing regression tests is not proof of operating-time savings or market demand.
 
 ## Slide 10 — Why Vortex OrderGuard
 
@@ -214,3 +228,15 @@ Closing message:
 **Vortex OrderGuard: Check. Explain. Remember. Approve.**
 
 End the pitch by returning to the live dashboard and showing the Supplier Exception Radar, Trust Gate and activity log together.
+
+## Research references
+
+All sources accessed **24 October 2026**. Dates below are the source's publication/update or edition dates, not necessarily the data year.
+
+1. Department of Statistics Malaysia. [Micro, Small & Medium Enterprises (MSMEs) Performance 2025](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025) — 30 July 2026; reference year 2025. Tier 1.
+2. World Bank. [Digitalizing SMEs to Boost Competitiveness](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness) — 31 October 2022. Tier 1.
+3. Microsoft Learn. [Accounts payable invoice matching overview](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) — Updated 15 May 2025. Tier 3.
+4. East Carolina University Financial Services. [Invoice Matching – AP Team Step-by-Step Guide](https://financialservices.ecu.edu/invoice-matching-ap-team-step-by-step-guide/) — Publication/update date not stated. Tier 1.
+5. National Institute of Standards and Technology. [Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST AI 600-1)](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) — July 2024. Tier 1.
+6. OWASP. [Top 10 for Large Language Model Applications, 2025 edition](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf) — 18 November 2024; edition labelled 2025. Tier 2.
+7. United Nations Department of Economic and Social Affairs. [Goal 8](https://sdgs.un.org/goals/goal8) — Target wording publication date not stated on the page. Tier 1.

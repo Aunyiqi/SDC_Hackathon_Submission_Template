@@ -8,11 +8,15 @@ Vortex OrderGuard is a functional MVP for the SDC Hackathon 2026 Domain 2 — **
 
 ## Why OrderGuard
 
-Small businesses often reconcile supplier messages, purchase orders, deliveries and invoices manually. A shortage, wrong unit or price change can be missed when records live in different places. OrderGuard turns that recurring checking into one reviewable workflow without allowing AI to make the final business decision.
+**Problem hypothesis:** micro and small businesses handling purchasing evidence across messages, receiving notes and invoices may benefit from one reviewable exception workflow. OrderGuard is designed to make quantity, unit and price differences visible without allowing AI to make the final business decision. Customer demand and time savings still need measurement.
+
+**Research context:** DOSM reports that MSMEs contributed **39.7% of Malaysia's GDP and 48.7% of employment in 2025**, in a release dated 30 July 2026. These are national context, not OrderGuard's addressable market. [[1]](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025) The World Bank's **2022** assessment found limited use of complex productivity tools and end-to-end digital transactions among Malaysian SMEs; it is historical context, not a current purchasing-error survey. [[2]](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness)
+
+See [`docs/RESEARCH_AND_REFERENCES.md`](docs/RESEARCH_AND_REFERENCES.md) for the evidence brief, linked sources, limitations and proposed user-validation protocol. Cited proposal wording and pitch notes are included in the [submission guide](docs/VORTEX_SUBMISSION_GUIDE.md) and [pitch content](docs/PITCH_DECK_CONTENT.md).
 
 ## Core Journey
 
-1. **Trigger** — staff submits supplier evidence and connected purchasing records.
+1. **Trigger** — the demo operator submits supplier evidence and structured purchasing records.
 2. **Connected data** — purchase order, receiving record and invoice are compared together.
 3. **Decision logic** — deterministic rules identify quantity, invoice-quantity, price and unit exceptions.
 4. **Supplier intelligence** — repeated issue patterns and open Money at Risk are surfaced for review.
@@ -20,7 +24,9 @@ Small businesses often reconcile supplier messages, purchase orders, deliveries 
 6. **Human control** — ambiguous units must be clarified by a person; consequential supplier clarification requires owner approval.
 7. **Visible outcome** — approved clarification enters a simulated outbox and every step is recorded in the audit trail.
 
-## Innovation
+## Design Focus
+
+Three-way matching is already documented in established accounting software and institutional workflows. [[3]](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) [[4]](https://financialservices.ecu.edu/invoice-matching-ap-team-step-by-step-guide/) OrderGuard's hypothesis is that a focused exception-review experience is useful for its intended users—not that it invented matching or is proven superior to existing tools.
 
 ### 1. OrderGuard Trust Gate
 
@@ -87,6 +93,8 @@ See [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md) for the full walkthrough.
 AI is used only where unstructured language creates friction: converting informal supplier text into structured suggestions such as item, quantity, unit and price. It does **not** calculate discrepancies, approve actions, infer unit conversions, judge suppliers or send supplier messages.
 
 The application supports DeepSeek through `DEEPSEEK_API_KEY`. If no key is configured, users continue with manual structured fields.
+
+The design rationale is consistent with NIST's guidance to evaluate AI output against known truth and OWASP's recommendations to validate output and restrict model authority. These references do not certify this prototype or establish its extraction accuracy. [[5]](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) [[6]](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf)
 
 ## Architecture
 
@@ -201,6 +209,8 @@ Automated coverage includes matching records, quantity/price discrepancies, ambi
 
 Item-identity regression tests also cover missing, blank or non-text item names, mismatches in any source record, harmless case/spacing differences, combined item/unit ambiguity and blocked approval through both the service and web routes. Item-blocked cases require corrected source records to be submitted as a new check; quantity/unit clarification cannot bypass the item check.
 
+The current browser form uses a single shared item name for all three records. Per-source item-name mismatch coverage is at the engine/service boundary; independent source ingestion and multi-line invoice matching are not implemented.
+
 Security regression tests cover anonymous writes, CSRF, secret rotation, fixed session expiry, confirmed/atomic resets, concurrent workflow changes, malformed and oversized AI requests, throttling and safe AI failure responses. Tests mock the AI provider; they do not consume live API credits.
 
 The repository also contains a GitHub Actions workflow for automated regression checks on every pull request and pushes to `vortex-orderguard-submission`.
@@ -256,3 +266,14 @@ This repository is based on the official SDC Hackathon Submission Template and r
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).
+
+## Research references
+
+All sources accessed **24 October 2026**. Dates below are the source's publication/update or edition dates, not necessarily the data year.
+
+1. Department of Statistics Malaysia. [Micro, Small & Medium Enterprises (MSMEs) Performance 2025](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025) — 30 July 2026; reference year 2025. Tier 1.
+2. World Bank. [Digitalizing SMEs to Boost Competitiveness](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness) — 31 October 2022. Tier 1.
+3. Microsoft Learn. [Accounts payable invoice matching overview](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) — Updated 15 May 2025. Tier 3.
+4. East Carolina University Financial Services. [Invoice Matching – AP Team Step-by-Step Guide](https://financialservices.ecu.edu/invoice-matching-ap-team-step-by-step-guide/) — Publication/update date not stated. Tier 1.
+5. National Institute of Standards and Technology. [Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST AI 600-1)](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) — July 2024. Tier 1.
+6. OWASP. [Top 10 for Large Language Model Applications, 2025 edition](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf) — 18 November 2024; edition labelled 2025. Tier 2.

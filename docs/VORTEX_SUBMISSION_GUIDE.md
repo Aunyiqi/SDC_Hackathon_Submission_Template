@@ -2,6 +2,8 @@
 
 Reviewed on 23 October 2026 against the supplied documents. This is a working checklist, not a completed official proposal, tools declaration or signed certification.
 
+Research and implementation evidence were updated on **24 October 2026**. This update does not independently re-verify the organizer rules or complete any team declaration.
+
 ## Source documents and interpretation
 
 - Online Orientation Slides: preliminary deliverables, deadline, AI policy, Replit/RunPod requirements, public submission and repository freeze.
@@ -17,9 +19,11 @@ The broader orientation allows several data sources, but Domain 2 specifically r
 
 ## Current status
 
-Confirmed: team name Vortex; selected project direction OrderGuard; public template fork; English project documentation; ChatGPT-assisted ideation and writing.
+Previously recorded: team name Vortex; selected project direction OrderGuard; public template fork; English project documentation; ChatGPT-assisted ideation and writing.
 
-Not verified or completed by this documentation task: team roster, leader, student eligibility, workshop attendance, independent problem validation, implemented prototype, Replit use, RunPod use, application model choice, deployment, tests, measured benefits, slides, video, signed forms or submission.
+Verified code evidence: [item-validation fix #1](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template/pull/1) and [demo-access hardening #2](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template/pull/2) are merged into `vortex-orderguard-submission`; the [submission-branch CI run passed](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template/actions/runs/39985643232). The 70-test suite is functional regression evidence, not measured customer impact. The prototype and its limitations are documented in README.
+
+Not verified or completed by this update: team roster, leader, student eligibility, workshop attendance, independent customer validation, proof of use from the team's Replit project, RunPod use, live application-model configuration, deployment, measured benefits, final slides/video, signed forms or submission.
 
 ## Important originality action
 
@@ -58,6 +62,30 @@ Submit at https://sdchack.my before **25 October 2026, 07:59:59 MYT**. Aim to fi
 
 Do not publish leader phone numbers, signatures or employment details in the public repository by default. Complete required personal fields in the official submission copy for the intended organizers.
 
+## Research-backed wording for team review
+
+These are draft passages, not a completed official form. Check the final template's word counter, retain the citations and distinguish proposals from completed activities. The [full evidence brief](RESEARCH_AND_REFERENCES.md) contains ten checked references and their limits.
+
+The external sources support desk research only. They are not application business records, model-training data or a substitute for customer interviews.
+
+### Section 2.1 — Problem context draft
+
+Malaysia's MSMEs contributed 39.7% of GDP and 48.7% of employment in 2025, according to DOSM's July 2026 release. These figures establish economic context, not demand for OrderGuard. [[1]](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025) The World Bank's 2022 assessment found limited use of complex productivity solutions and end-to-end digital transactions among Malaysian SMEs; it is historical context rather than a current invoice-error survey. [[2]](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness)
+
+Vortex will investigate whether micro/small food-service operators spend avoidable effort reconciling purchase orders, receiving evidence and invoices. The working hypothesis is that quantity, price or unit exceptions become harder to resolve when evidence is scattered. Three-way matching is an established control, not our invention. [[3]](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) We propose a focused, explainable exception workflow with human approval. No interviews, purchasing-error prevalence or time savings have yet been established by this project.
+
+### Section 2.2 — Solution rationale draft
+
+OrderGuard compares one item's purchase-order, receiving and invoice data using deterministic rules, blocks ambiguous inputs and records human clarification or approval before adding a simulated supplier action to an outbox. Optional AI suggests structured fields; a person must verify them. NIST recommends evaluating generated output against known truth, while OWASP recommends validating outputs and restricting AI authority. [[4]](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) [[5]](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf)
+
+The prototype demonstrates source-linked exceptions, repeat supplier-item patterns and a Money at Risk review indicator, not a final payable amount. Current browser input uses a shared item name; independent source ingestion and multi-line reconciliation remain outside scope. All business records are synthetic. The shared demo-owner access guard is not production user authentication or live Orbyte RBAC, and the system sends no real supplier messages or payments.
+
+### Section 3.2 — Validation/deployment draft
+
+Planned discovery will involve 3–5 consenting SME operators or representative testers, with their roles reported separately. A proposed 12-task synthetic set covers matching records, quantity/price exceptions and ambiguous units. Manual and app testing will use equivalent sets and counterbalanced order. We will include human-review time, failed attempts, missed exceptions, false alerts and help requests. These activities are proposed, not completed.
+
+The 70-test regression suite has passed, but this does not establish user benefit or live AI accuracy. Deployment through the team's Replit project, secure configuration, public-link checks and sponsor proof of use still require verification. No measured savings or completed deployment is claimed.
+
 ## Impact measurement worksheet
 
 No measured baseline or achieved savings currently exist in this project documentation.
@@ -71,7 +99,7 @@ No measured baseline or achieved savings currently exist in this project documen
 
 A baseline may be estimated under the official template, but label it as estimated, explain the assumptions and cite any external source. Do not invent a measured number. Prototype targets must be labeled targets, not results.
 
-SDG 8.2 is the primary productivity link. SDG 8.3 is a supporting small-business adoption rationale. Do not claim quantified food-waste savings without measuring them.
+SDG 8.2 is the primary productivity/technological-upgrading link; SDG 8.3 includes productive activity and MSME growth. These are intended alignment, not achieved impact. [[6]](https://sdgs.un.org/goals/goal8) Do not equate synthetic task time with the UN's national indicators, or claim quantified food-waste savings without measuring them.
 
 ## Technical declaration field mapping
 
@@ -93,6 +121,8 @@ SDG 8.2 is the primary productivity link. SDG 8.3 is a supporting small-business
 
 Declare ChatGPT assistance with ideation and substantial documentation. Do not call it merely spelling correction. Record actual review actions when performed. Distinguish a development assistant from a model called by the application. Do not guess a model/version, dependency license, deployment region or tool-use extent.
 
+Also disclose Replit Agent assistance with repository review, code fixes, regression tests, research, source verification and documentation/PR preparation. The team must independently review and adapt the work; agent activity is not evidence that the team has completed its own review.
+
 Complete every section. Use “None” or “No” only when genuinely inapplicable; unresolved facts must be resolved before final submission, not converted to “None”.
 
 ## Sponsor proof of use
@@ -111,7 +141,7 @@ Complete every section. Use “None” or “No” only when genuinely inapplica
 | One SME problem | Restaurant purchasing discrepancy checks with a clear target user |
 | Automated journey | Input → connected purchase/receipt/invoice data → comparison → owner approval → simulated outcome |
 | Accuracy/ease of learning | Source-linked flags, missing-unit clarification and an observed first-time-user task |
-| Human control | Staff/owner distinction, reject path, approval before outbox action, activity history |
+| Human control | Protected demo-owner actions, reject path, approval before outbox action, activity history; production staff/owner identities are not implemented |
 | Orbyte fit/reuse | Clearly labeled mock interfaces; configurable products/units; no claim of live access |
 | Business benefit/SDG | Baseline, time/error measures, realistic target and SDG 8 rationale |
 
@@ -159,3 +189,14 @@ This is a proposed structure, not an additional competition rule.
 ## Final honesty check
 
 Do not mark planned features as built, declare tests passed without results, invent SME interviews, claim workshop attendance without confirmation, backdate commits or sign for a team member. This guide and README are AI-assisted working documents for team review.
+
+## Research references
+
+All sources accessed **24 October 2026**. Dates below are the source's publication/update or edition dates, not necessarily the data year.
+
+1. Department of Statistics Malaysia. [Micro, Small & Medium Enterprises (MSMEs) Performance 2025](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025) — 30 July 2026; reference year 2025. Tier 1.
+2. World Bank. [Digitalizing SMEs to Boost Competitiveness](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness) — 31 October 2022. Tier 1.
+3. Microsoft Learn. [Accounts payable invoice matching overview](https://learn.microsoft.com/en-us/dynamics365/finance/accounts-payable/accounts-payable-invoice-matching) — Updated 15 May 2025. Tier 3.
+4. National Institute of Standards and Technology. [Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST AI 600-1)](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) — July 2024. Tier 1.
+5. OWASP. [Top 10 for Large Language Model Applications, 2025 edition](https://owasp.org/www-project-top-10-for-large-language-model-applications/assets/PDF/OWASP-Top-10-for-LLMs-v2025.pdf) — 18 November 2024; edition labelled 2025. Tier 2.
+6. United Nations Department of Economic and Social Affairs. [Goal 8](https://sdgs.un.org/goals/goal8) — Target wording publication date not stated on the page. Tier 1.
