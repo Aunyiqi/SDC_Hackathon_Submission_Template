@@ -44,6 +44,13 @@ class TestOrbyteAlignedRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Supplier Exception Radar", response.data)
 
+    def test_new_check_renders_live_evidence_preview(self):
+        response = self.client.get("/cases/new")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Live Evidence Preview", response.data)
+        self.assertIn(b"Browser preview only", response.data)
+        self.assertIn(b"orderguard.js", response.data)
+
 
 if __name__ == "__main__":
     unittest.main()
