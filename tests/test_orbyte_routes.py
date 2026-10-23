@@ -41,6 +41,19 @@ class TestOrbyteAlignedRoutes(unittest.TestCase):
         self.assertIn(b"Pending Actions", response.data)
         self.assertIn(b"Supplier Checks", response.data)
 
+    def test_navigation_search_assets_are_loaded(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'id="menuSearch"', response.data)
+        self.assertIn(b"shell.js", response.data)
+        self.assertIn(b"shell.css", response.data)
+        self.assertIn(b"Mobile navigation", response.data)
+
+        js_response = self.client.get("/static/shell.js")
+        self.assertEqual(js_response.status_code, 200)
+        self.assertIn(b"applyFilter", js_response.data)
+        self.assertIn(b"event.key === '/'", js_response.data)
+
     def test_checks_support_search_and_status_filter(self):
         app_module.service.create_case(
             "Delivered 8 kg chicken.",
