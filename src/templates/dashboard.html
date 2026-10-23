@@ -1,50 +1,61 @@
 {% extends "base.html" %}
 {% block title %}Dashboard · Vortex OrderGuard{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h1 class="h3 mb-1">Purchasing exception dashboard</h1>
-    <p class="text-secondary mb-0">Synthetic demo data only. Consequential actions require owner approval.</p>
+<section class="hero-card mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <div class="eyebrow">ORBYTE SMART SME CHALLENGE</div>
+      <h1 class="display-6 fw-bold mb-3">Catch supplier discrepancies before they become expensive mistakes.</h1>
+      <p class="lead mb-3">OrderGuard connects purchase orders, receiving records and invoices, explains every exception, then keeps the owner in control with a Trust Gate and audit trail.</p>
+      <a class="btn btn-light btn-lg" href="{{ url_for('new_case') }}">Start a supplier check</a>
+    </div>
+    <div class="col-lg-4">
+      <div class="hero-flow">
+        <div>1. Trigger</div><span>Supplier record arrives</span>
+        <div>2. Connected data</div><span>PO + receiving + invoice</span>
+        <div>3. Logic</div><span>Rules + optional AI extraction</span>
+        <div>4. Human control</div><span>Trust Gate + owner decision</span>
+        <div>5. Outcome</div><span>Simulated outbox + audit log</span>
+      </div>
+    </div>
   </div>
-  <a class="btn btn-primary" href="{{ url_for('new_case') }}">New supplier check</a>
+</section>
+
+<div class="d-flex justify-content-between align-items-end mb-3">
+  <div><div class="eyebrow text-dark">JUDGE DEMO</div><h2 class="h4 mb-0">Run a scenario in one click</h2></div>
+  <span class="badge rounded-pill text-bg-{{ 'success' if ai_enabled else 'secondary' }}">AI {{ 'ready' if ai_enabled else 'manual fallback' }}</span>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><form method="post" action="{{ url_for('demo_scenario', scenario='discrepancy') }}"><button class="scenario-card scenario-review w-100 text-start" type="submit"><strong>Discrepancy</strong><span>Short delivery + higher invoice price</span></button></form></div>
+  <div class="col-md-4"><form method="post" action="{{ url_for('demo_scenario', scenario='ambiguous') }}"><button class="scenario-card scenario-blocked w-100 text-start" type="submit"><strong>Ambiguous unit</strong><span>“2 bags” vs kg → Trust Gate blocks action</span></button></form></div>
+  <div class="col-md-4"><form method="post" action="{{ url_for('demo_scenario', scenario='match') }}"><button class="scenario-card scenario-clear w-100 text-start" type="submit"><strong>Clean match</strong><span>No exception, no unnecessary action</span></button></form></div>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-4"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Cases</div><div class="display-6">{{ cases|length }}</div></div></div></div>
-  <div class="col-md-4"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Pending approval</div><div class="display-6">{{ cases|selectattr('status', 'equalto', 'PENDING_APPROVAL')|list|length }}</div></div></div></div>
-  <div class="col-md-4"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Simulated outbox</div><div class="display-6">{{ outbox|length }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="metric-label">Total cases</div><div class="metric-value">{{ summary.total }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="metric-label">Awaiting owner</div><div class="metric-value">{{ summary.pending }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="metric-label">Trust Gate blocked</div><div class="metric-value">{{ summary.blocked }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="metric-label">Approved</div><div class="metric-value">{{ summary.approved }}</div></div></div></div>
 </div>
 
-<div class="card mb-4">
-  <div class="card-header fw-semibold">Cases</div>
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead><tr><th>ID</th><th>Status</th><th>Submitted by</th><th>Proposed action</th><th></th></tr></thead>
-      <tbody>
-      {% for case in cases %}
-        <tr>
-          <td>#{{ case.id }}</td>
-          <td><span class="badge text-bg-{{ 'warning' if case.status == 'PENDING_APPROVAL' else 'success' if case.status in ['APPROVED','MATCHED'] else 'secondary' }}">{{ case.status }}</span></td>
-          <td>{{ case.submitted_by }}</td>
-          <td>{{ case.proposed_action }}</td>
-          <td><a class="btn btn-sm btn-outline-dark" href="{{ url_for('case_detail', case_id=case.id) }}">Review</a></td>
-        </tr>
-      {% else %}
-        <tr><td colspan="5" class="text-center py-4 text-secondary">No cases yet. Start with the demo discrepancy check.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-header fw-semibold">Simulated supplier outbox</div>
+<div class="card mb-4 shadow-sm border-0">
+  <div class="card-header bg-white fw-semibold py-3">Exception pulse</div>
   <div class="card-body">
-    {% for item in outbox %}
-      <div class="border rounded p-3 mb-2"><strong>Case #{{ item.case_id }}</strong><br>{{ item.message }}</div>
-    {% else %}
-      <p class="text-secondary mb-0">Nothing has been approved yet.</p>
-    {% endfor %}
+    {% for name, count in summary.discrepancies.items() %}<span class="exception-chip">{{ name.replace('_',' ') }} <b>{{ count }}</b></span>{% else %}<span class="text-secondary">No discrepancies recorded yet.</span>{% endfor %}
   </div>
 </div>
+
+<div class="card mb-4 shadow-sm border-0">
+  <div class="card-header bg-white fw-semibold py-3">Cases</div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0"><thead><tr><th>Case</th><th>Status</th><th>Trust Gate</th><th>Action</th><th></th></tr></thead><tbody>
+    {% for case in cases %}
+      {% set gate = case.comparison.trust_gate %}
+      <tr><td>#{{ case.id }}</td><td>{{ case.status.replace('_',' ') }}</td><td><span class="trust-pill trust-{{ gate.level|lower }}">{{ gate.score }} · {{ gate.level }}</span></td><td class="small">{{ case.proposed_action }}</td><td><a class="btn btn-sm btn-outline-dark" href="{{ url_for('case_detail', case_id=case.id) }}">Review</a></td></tr>
+    {% else %}<tr><td colspan="5" class="text-center py-4 text-secondary">No cases yet. Run one of the demo scenarios above.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Simulated supplier outbox</div><div class="card-body">{% for item in outbox %}<div class="outbox-item"><strong>Case #{{ item.case_id }}</strong><br>{{ item.message }}</div>{% else %}<p class="text-secondary mb-0">Nothing has been approved yet.</p>{% endfor %}</div></div>
 {% endblock %}
