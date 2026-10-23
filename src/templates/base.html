@@ -8,19 +8,53 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark app-nav">
-  <div class="container py-2">
-    <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">VORTEX <span>OrderGuard</span></a>
-    <div class="navbar-text d-none d-md-block">Evidence → Rules → Human approval → Logged outcome</div>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a class="brand-lockup" href="{{ url_for('dashboard') }}">
+      <span class="brand-mark">V</span>
+      <span><strong>Vortex</strong><small>OrderGuard</small></span>
+    </a>
+
+    <div class="org-switcher">
+      <span class="org-icon">▦</span>
+      <span><small>Current organization</small><strong>{{ demo_org }}</strong></span>
+      <span class="ms-auto">⌄</span>
+    </div>
+
+    <div class="sidebar-search">⌕ <span>Search menu...</span><kbd>/</kbd></div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Navigation</div>
+      <a class="side-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>⌂</span>Dashboard</a>
+      <div class="nav-group-title"><span>▣</span>Workspace</div>
+      <div class="nav-children">
+        <a class="side-link {% if request.endpoint in ['checks','case_detail'] %}active{% endif %}" href="{{ url_for('checks') }}"><span>✓</span>Supplier Checks</a>
+        <a class="side-link {% if request.endpoint == 'new_case' %}active{% endif %}" href="{{ url_for('new_case') }}"><span>＋</span>New Check</a>
+      </div>
+      <a class="side-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}"><span>▤</span>Reports</a>
+      <div class="side-link muted"><span>⚙</span>Settings <small>simulated</small></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">OD</div>
+      <div><strong>{{ demo_user }}</strong><small>{{ integration_mode }}</small></div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="mobile-topbar">
+      <a class="fw-bold text-decoration-none" href="{{ url_for('dashboard') }}">Vortex OrderGuard</a>
+      <span class="small text-secondary">{{ demo_org }}</span>
+    </header>
+    <main class="content-wrap">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} shadow-sm">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
   </div>
-</nav>
-<main class="container py-4 py-lg-5">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }} shadow-sm">{{ message }}</div>
-    {% endfor %}
-  {% endwith %}
-  {% block content %}{% endblock %}
-</main>
+</div>
 </body>
 </html>
