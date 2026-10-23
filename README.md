@@ -142,11 +142,11 @@ OrderGuard does not yet have verified run instructions. Setup, environment varia
 
 ## Technical and AI Disclosure
 
-This README was drafted with assistance from ChatGPT following the team's discussion of the challenge and selection of the project direction. The team must review, adapt and understand the proposal and accurately disclose AI assistance.
+ChatGPT proposed the OrderGuard direction during this conversation and drafted substantial project documentation; the user selected the direction. No independent team-originated problem framing, research or technical validation has been verified. The Orientation Slides require the core idea, solution design and technical decisions to originate from the team. Selection of an AI suggestion alone does not establish compliance. The team must disclose the actual assistance, develop and record its own reasoning and evidence, and ask the organizers whether this starting point is acceptable. Do not claim independent originality or completed review without evidence.
 
 The repository is based on the official [SDC Hackathon Submission Template](https://github.com/michaelzhngg/SDC_Hackathon_Submission_Template). Preserve its attribution and license. Document additional tools, models, APIs, libraries and reused materials as they are introduced.
 
-Replit use and proof are pending. The template labels RunPod use as required, while the supplied Participant Handbook ties mandatory RunPod use to GPU workloads. Confirm the applicable requirement with the organizers before finalizing the compute plan and declaration.
+Replit is compulsory, and evidence from the team's own account must be included in the declaration. The supplied Orientation Slides explicitly state that GPU training, fine-tuning and inference must use RunPod. If the project has no GPU workload, accurately document that fact; do not invent RunPod usage or evidence. Replit setup and all runtime integrations remain pending.
 
 ## Risks and Next Steps
 
@@ -165,15 +165,30 @@ Replit use and proof are pending. The template labels RunPod use as required, wh
 - Configurable rules for different SME sectors.
 - Real business-system connectors following permission and privacy review.
 
+## Official Submission Requirements
+
+**Preliminary deadline: 25 October 2026 at 07:59:59 MYT (UTC+8).** Submit through [sdchack.my](https://sdchack.my). The initial pitch is a recorded 5–7 minute YouTube video containing a working prototype demonstration, accompanied by an accessible functional prototype/build.
+
+Required items: official-template product proposal, pitch deck, functional prototype access, technical and tools declaration, public GitHub repository, and pitching video. A README alone is not a valid submission.
+
+Prepare `SDC2026_Vortex_Preliminary.pdf` and `SDC2026_Vortex_TechDeclaration.pdf`. Keep actual sponsor proof of use with the submission. Complete the official templates and respect their word limits; do not submit this README in their place.
+
+See [Submission preparation guide](docs/VORTEX_SUBMISSION_GUIDE.md) for the requirement mapping, word limits, evidence checklist and ordered next steps.
+
+Retain Apache License 2.0, add the designated committee accounts as collaborators, and preserve genuine development commits. Stop all modifications to the submitted repository after the deadline unless the organizers explicitly authorize them. The orientation instructs teams to keep development private and make the submission public; this repository is already a public fork. Repository visibility was not changed by this documentation update. If private development is needed, clarify the approved workflow with the organizers.
+
 ## Submission Checklist
 
 - [x] Team name and project direction documented.
-- [ ] Team details and responsibilities confirmed.
+- [ ] Team details, student eligibility and responsibilities confirmed.
+- [ ] Originality concern and AI assistance discussed with organizers; actual team decisions documented.
+- [ ] Mandatory GenAI, Database and Cloud Deployment workshop completion verified for all members.
+- [ ] Numeric baseline, KPI and percentage-based Phase 2 target supplied with evidence or explicit estimation assumptions.
 - [ ] Problem validation completed.
 - [ ] Working prototype and user interface available.
 - [ ] Core journey and exception cases tested.
 - [ ] Replit used and proof of use attached.
-- [ ] RunPod requirement confirmed; actual usage and proof documented as applicable.
+- [ ] All GPU workloads use RunPod; usage evidence attached where applicable, otherwise non-use accurately explained.
 - [ ] Product requirements completed using the official template.
 - [ ] Technical and tools declaration completed.
 - [ ] Pitch deck completed.
