@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Case #{{ case.id }} · Vortex OrderGuard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <a class="small text-decoration-none" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+    <h1 class="h3 mt-2">Case #{{ case.id }}</h1>
+    <span class="badge text-bg-{{ 'warning' if case.status == 'PENDING_APPROVAL' else 'success' if case.status in ['APPROVED','MATCHED'] else 'secondary' }}">{{ case.status }}</span>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">Supplier evidence</div>
+      <div class="card-body"><blockquote class="mb-0">“{{ case.supplier_message }}”</blockquote></div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">Connected records</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4"><div class="evidence-box"><strong>Purchase order</strong><br>{{ case.purchase_order.quantity }} {{ case.purchase_order.unit }} × RM{{ '%.2f'|format(case.purchase_order.unit_price) }}</div></div>
+          <div class="col-md-4"><div class="evidence-box"><strong>Received</strong><br>{{ case.received.quantity }} {{ case.received.unit }}</div></div>
+          <div class="col-md-4"><div class="evidence-box"><strong>Invoice</strong><br>{{ case.invoice.quantity }} {{ case.invoice.unit }} × RM{{ '%.2f'|format(case.invoice.unit_price) }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">Rule-based comparison</div>
+      <div class="card-body">
+        {% if case.comparison.discrepancies %}
+          {% for d in case.comparison.discrepancies %}
+            <div class="alert alert-warning mb-2">
+              <div class="fw-semibold">{{ d.type.replace('_', ' ') }}</div>
+              {{ d.message }}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="alert alert-success mb-0">All connected records match.</div>
+        {% endif %}
+        {% if case.comparison.comparison_amount is not none %}
+          <div class="row mt-3 text-center">
+            <div class="col"><div class="small text-secondary">Received × agreed price</div><strong>RM{{ '%.2f'|format(case.comparison.comparison_amount) }}</strong></div>
+            <div class="col"><div class="small text-secondary">Invoice amount</div><strong>RM{{ '%.2f'|format(case.comparison.invoice_amount) }}</strong></div>
+            <div class="col"><div class="small text-secondary">Difference</div><strong>RM{{ '%.2f'|format(case.comparison.difference) }}</strong></div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-semibold">Activity log</div>
+      <div class="list-group list-group-flush">
+        {% for item in activity %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between"><strong>{{ item.action.replace('_',' ') }}</strong><span class="small text-secondary">{{ item.actor }}</span></div>
+            <div>{{ item.details }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card sticky-top" style="top: 1rem;">
+      <div class="card-header fw-semibold">Owner decision</div>
+      <div class="card-body">
+        <p class="small text-secondary">Proposed clarification</p>
+        <p>{{ case.proposed_action }}</p>
+        {% if case.status == 'PENDING_APPROVAL' %}
+          <form method="post" action="{{ url_for('approve_case', case_id=case.id) }}" class="mb-3">
+            <button class="btn btn-success w-100" type="submit">Approve clarification</button>
+          </form>
+          <form method="post" action="{{ url_for('reject_case', case_id=case.id) }}">
+            <label class="form-label small">Reject reason</label>
+            <input class="form-control mb-2" name="reason" value="Need supplier call before action">
+            <button class="btn btn-outline-danger w-100" type="submit">Reject</button>
+          </form>
+          <hr>
+          <p class="small text-secondary mb-0">The prototype never processes a real payment or sends a real supplier message.</p>
+        {% else %}
+          <div class="alert alert-light border mb-0">Decision completed: <strong>{{ case.status }}</strong></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
