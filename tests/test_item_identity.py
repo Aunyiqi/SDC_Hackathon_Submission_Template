@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import app as app_module
 from discrepancy_engine import compare_records
+from security_support import authenticate_owner, configure_owner_access
 from workflow import OrderGuardService
 
 
@@ -169,8 +170,9 @@ class TestItemIdentityRoutes(unittest.TestCase):
         self.original_service = app_module.service
         self.original_testing = app_module.app.config["TESTING"]
         app_module.service = OrderGuardService(str(Path(self.tmp.name) / "routes.db"))
-        app_module.app.config["TESTING"] = True
+        configure_owner_access(self, app_module.app)
         self.client = app_module.app.test_client()
+        authenticate_owner(self.client, app_module.app)
 
     def tearDown(self):
         app_module.service = self.original_service

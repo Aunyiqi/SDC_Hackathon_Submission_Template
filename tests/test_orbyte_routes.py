@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import app as app_module
+from security_support import authenticate_owner, configure_owner_access
 from workflow import OrderGuardService
 
 
@@ -14,8 +15,9 @@ class TestOrbyteAlignedRoutes(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         app_module.service = OrderGuardService(str(Path(self.tmp.name) / "routes.db"))
-        app_module.app.config.update(TESTING=True)
+        configure_owner_access(self, app_module.app)
         self.client = app_module.app.test_client()
+        authenticate_owner(self.client, app_module.app)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -50,6 +52,7 @@ class TestOrbyteAlignedRoutes(unittest.TestCase):
         self.assertIn(b"Mobile navigation", response.data)
 
         js_response = self.client.get("/static/shell.js")
+        self.addCleanup(js_response.close)
         self.assertEqual(js_response.status_code, 200)
         self.assertIn(b"applyFilter", js_response.data)
         self.assertIn(b"event.key === '/'", js_response.data)
@@ -81,6 +84,7 @@ class TestOrbyteAlignedRoutes(unittest.TestCase):
         self.assertIn(b"new_check.css", response.data)
 
         css_response = self.client.get("/static/new_check.css")
+        self.addCleanup(css_response.close)
         self.assertEqual(css_response.status_code, 200)
         self.assertIn(b".check-stepper", css_response.data)
         self.assertIn(b".record-card", css_response.data)

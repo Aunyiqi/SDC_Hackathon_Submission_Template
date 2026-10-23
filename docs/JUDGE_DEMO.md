@@ -1,6 +1,6 @@
 # Vortex OrderGuard — Judge Demo Guide
 
-This guide describes the implemented competition prototype on the `vortex-orderguard-mvp` branch. All demo records are synthetic.
+This guide describes the competition prototype for the `vortex-orderguard-submission` branch after the relevant pull requests are merged. All demo records are synthetic.
 
 ## One-sentence pitch
 
@@ -15,6 +15,7 @@ The important business decisions are deterministic and explainable:
 - quantity comparison;
 - price comparison;
 - invoice quantity comparison;
+- missing/mismatched source-item blocking;
 - incompatible-unit blocking;
 - money-at-risk calculation;
 - repeated issue detection for the same supplier + item;
@@ -43,6 +44,14 @@ flowchart LR
 ```
 
 ## Best 3-minute demo flow
+
+### Before presenting
+
+- Configure `FLASK_SECRET_KEY` and `ORDERGUARD_OWNER_ACCESS_CODE` in Replit Secrets; see the README for minimum lengths. Keep the app on HTTPS with secure cookies enabled.
+- Open **Owner access** and unlock the demo before recording or presenting. Never expose the code or Secrets pane in screenshots or the pitch video. Owner sessions expire 30 minutes after login.
+- Confirm the manual workflow works with `DEEPSEEK_API_KEY` unset. AI extraction is optional, owner-gated and rate-limited; do not make the main pitch depend on a live provider response.
+- If needed, use **Demo maintenance** and explicitly confirm a reset before the rehearsal. It clears synthetic cases, simulated outbox entries and case audit history irreversibly.
+- Check the public link in a separate private/incognito browser: viewing should work, while write controls remain locked. Give judges a read-only link by default.
 
 ### 1. Discrepancy case
 
@@ -111,6 +120,8 @@ Click **4 · Clean match** to show that OrderGuard does not create unnecessary a
 - No legal, tax or financial advice.
 - AI extraction is optional and has a manual fallback.
 - API keys must remain in Replit Secrets or server-side environment variables.
+- The private owner code protects the shared demo, but it is not a real user-account system or live Orbyte role authorization.
+- Public viewing is intentionally unauthenticated, so do not enter real supplier/customer records.
 
 ## Current automated checks
 
@@ -126,7 +137,11 @@ The core test suite covers:
 - duplicate approval protection;
 - repeat issue detection;
 - supplier separation in pattern memory;
-- open money-at-risk aggregation.
+- open money-at-risk aggregation;
+- missing/mismatched item identity and blocked approval;
+- anonymous mutation rejection, CSRF and fixed owner-session expiry;
+- confirmed, transactional reset and concurrent approval safety;
+- malformed/oversized AI inputs, output validation and request limits.
 
 Use:
 

@@ -67,6 +67,7 @@ See [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md) for the full walkthrough.
 - Human clarification for incompatible/missing units
 - Explainable Trust Gate with `CLEAR`, `REVIEW` and `BLOCKED` states
 - Owner-only approval/rejection for consequential actions
+- Read-only public demo with private, expiring owner-control sessions and CSRF protection on all mutations
 - Duplicate-approval protection using a unique outbox case constraint
 - Simulated supplier outbox (no real messages/payments)
 - Activity/audit history
@@ -159,19 +160,34 @@ Then open the URL provided by Replit, or locally open `http://127.0.0.1:5000`.
 
 ### Replit Secrets
 
-Do not commit real keys. Configure these through Replit Secrets when used:
+Do not commit or print real keys. Configure these **names** through Replit Secrets or server-side environment variables:
 
-```text
-DEEPSEEK_API_KEY=...
-FLASK_SECRET_KEY=...
-```
+- `FLASK_SECRET_KEY`: an independent, randomly generated signing secret of at least 32 characters.
+- `ORDERGUARD_OWNER_ACCESS_CODE`: a private, randomly generated demo-owner code of at least 24 characters.
+- `DEEPSEEK_API_KEY`: optional; leave unset to use the manual workflow without external AI calls.
 
-Optional:
+If either required secret is missing or too short, the app stays **read-only**. It has no built-in owner code and no predictable signing-key fallback. The application does not automatically load `.env` files.
+
+Open **Owner access** and enter the private owner code before creating checks, running scenarios, clarifying/approving/rejecting cases, resetting demo data or using AI extraction. Owner access lasts at most 30 minutes from login; activity does not extend that deadline. **Lock owner controls** ends access in the current browser. Rotating the owner code or signing secret invalidates existing owner sessions.
+
+Cookies require HTTPS by default. For local HTTP development only, set `ORDERGUARD_COOKIE_SECURE=false`; do not use that override for a public HTTPS deployment.
+
+Optional AI settings:
 
 ```text
 DEEPSEEK_MODEL=deepseek-chat
 DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
 ```
+
+### Demo access boundaries
+
+This is a shared **demo-owner access guard**, not individual user authentication, tenant isolation or live Orbyte RBAC. All public pages remain visible without the code, so **use synthetic records only**. Real customer data requires a proper identity/authorization system and a deployment/storage review first.
+
+Data-changing routes and AI extraction require a signed owner session and a per-session CSRF token. Login and logout also require CSRF. Request bodies are limited to 64 KiB. AI extraction accepts at most 4,000 message characters, requests at most 256 output tokens, validates returned field types and retains a manual fallback.
+
+Login attempts are limited to five per minute and AI extraction to ten per minute, shared across each application process. These bounded in-memory limits are **not distributed or persistent billing quotas**; they reset on process restart and multiply with multiple workers/instances.
+
+**Demo maintenance** requires explicit confirmation before clearing cases, simulated outbox entries and case audit history. Reset runs in one database transaction, preserves the database file and does not reuse old case IDs. It cannot be undone.
 
 ## Tests
 
@@ -185,7 +201,9 @@ Automated coverage includes matching records, quantity/price discrepancies, ambi
 
 Item-identity regression tests also cover missing, blank or non-text item names, mismatches in any source record, harmless case/spacing differences, combined item/unit ambiguity and blocked approval through both the service and web routes. Item-blocked cases require corrected source records to be submitted as a new check; quantity/unit clarification cannot bypass the item check.
 
-The repository also contains a GitHub Actions workflow for automated regression checks on `vortex-orderguard-submission`.
+Security regression tests cover anonymous writes, CSRF, secret rotation, fixed session expiry, confirmed/atomic resets, concurrent workflow changes, malformed and oversized AI requests, throttling and safe AI failure responses. Tests mock the AI provider; they do not consume live API credits.
+
+The repository also contains a GitHub Actions workflow for automated regression checks on every pull request and pushes to `vortex-orderguard-submission`.
 
 ## Safety and Competition Boundaries
 
@@ -230,6 +248,8 @@ See [`docs/VORTEX_SUBMISSION_GUIDE.md`](docs/VORTEX_SUBMISSION_GUIDE.md) for the
 ## Technical & AI Disclosure
 
 The project has used ChatGPT for substantial ideation, documentation and development assistance and this must be disclosed accurately in the Technical & Tools Declaration. The team remains responsible for reviewing, understanding, testing and adapting all generated material. The competition requires the team's own problem framing, solution decisions and explainability; the team should validate the SME problem and document its own decisions before submission.
+
+Replit Agent has also assisted with code review, item-identity validation, demo-access hardening, regression tests and pull-request preparation; include this assistance in the declaration.
 
 This repository is based on the official SDC Hackathon Submission Template and retains its Apache License 2.0.
 

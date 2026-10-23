@@ -4,7 +4,9 @@ on:
   push:
     branches: [vortex-orderguard-submission]
   pull_request:
-    branches: [main, vortex-orderguard-submission]
+
+permissions:
+  contents: read
 
 jobs:
   test:
