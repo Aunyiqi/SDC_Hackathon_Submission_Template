@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
 from ai_extractor import AIExtractionUnavailable, extract_supplier_message
+from supplier_radar import build_supplier_radar
 from workflow import OrderGuardService
 
 
@@ -23,11 +24,13 @@ def _number(name: str) -> float:
 
 @app.get("/")
 def dashboard():
+    cases = service.list_cases()
     return render_template(
         "dashboard.html",
-        cases=service.list_cases(),
+        cases=cases,
         outbox=service.get_outbox(),
         summary=service.get_dashboard_summary(),
+        supplier_radar=build_supplier_radar(cases, service.get_supplier_insight),
         ai_enabled=bool(os.getenv("DEEPSEEK_API_KEY")),
     )
 
