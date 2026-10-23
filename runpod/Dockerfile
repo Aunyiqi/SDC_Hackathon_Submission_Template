@@ -2,6 +2,12 @@ FROM runpod/pytorch:1.0.3-cu1281-torch291-ubuntu2404
 
 WORKDIR /app
 
+# RunPod's build log showed that git is not available in this base image.
+# Install only the missing system dependency before Python packages are resolved.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY runpod/requirements.txt /app/requirements.txt
 RUN python -m pip install --no-cache-dir -r /app/requirements.txt
 
