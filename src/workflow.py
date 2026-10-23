@@ -71,6 +71,23 @@ class OrderGuardService:
             (case_id, actor, action, details, self._now()),
         )
 
+    @staticmethod
+    def _status_for(comparison: Dict[str, Any]) -> str:
+        return {
+            "MATCH": "MATCHED",
+            "NEEDS_CLARIFICATION": "NEEDS_CLARIFICATION",
+            "REVIEW_REQUIRED": "PENDING_APPROVAL",
+        }[comparison["status"]]
+
+    @staticmethod
+    def _propose_action(comparison: Dict[str, Any]) -> str:
+        if comparison["status"] == "MATCH":
+            return "No supplier clarification is required."
+        if comparison["status"] == "NEEDS_CLARIFICATION":
+            return "Confirm the unit or missing information before any supplier action."
+        labels = [d["type"].replace("_", " ").title() for d in comparison["discrepancies"]]
+        return "Please verify the following discrepancy/discrepancies: " + ", ".join(labels) + "."
+
     def create_case(
         self,
         supplier_message: str,
@@ -93,7 +110,7 @@ class OrderGuardService:
                     json.dumps(invoice),
                     json.dumps(comparison),
                     proposed_action,
-                    "PENDING_APPROVAL" if comparison["status"] != "MATCH" else "MATCHED",
+                    self._status_for(comparison),
                     submitted_by,
                     self._now(),
                 ),
@@ -101,16 +118,15 @@ class OrderGuardService:
             case_id = int(cur.lastrowid)
             self._log(conn, case_id, submitted_by, "CASE_SUBMITTED", "Records submitted for comparison")
             self._log(conn, case_id, "system", "COMPARISON_COMPLETED", comparison["status"])
+            if comparison["status"] == "NEEDS_CLARIFICATION":
+                self._log(
+                    conn,
+                    case_id,
+                    "system",
+                    "TRUST_GATE_BLOCKED",
+                    "Approval blocked until a human confirms ambiguous data",
+                )
         return case_id
-
-    @staticmethod
-    def _propose_action(comparison: Dict[str, Any]) -> str:
-        if comparison["status"] == "MATCH":
-            return "No supplier clarification is required."
-        if comparison["status"] == "NEEDS_CLARIFICATION":
-            return "Confirm the unit conversion or missing information before any supplier action."
-        labels = [d["type"].replace("_", " ").title() for d in comparison["discrepancies"]]
-        return "Please verify the following discrepancy/discrepancies: " + ", ".join(labels) + "."
 
     def get_case(self, case_id: int) -> Dict[str, Any]:
         with self._db() as conn:
@@ -124,18 +140,75 @@ class OrderGuardService:
 
     def list_cases(self) -> List[Dict[str, Any]]:
         with self._db() as conn:
-            rows = conn.execute("SELECT id, status, submitted_by, created_at, proposed_action FROM cases ORDER BY id DESC").fetchall()
-        return [dict(row) for row in rows]
+            rows = conn.execute(
+                "SELECT id, status, submitted_by, created_at, proposed_action, comparison FROM cases ORDER BY id DESC"
+            ).fetchall()
+        result = []
+        for row in rows:
+            item = dict(row)
+            item["comparison"] = json.loads(item["comparison"])
+            result.append(item)
+        return result
+
+    def clarify_case(
+        self,
+        case_id: int,
+        actor: str,
+        received_quantity: float,
+        received_unit: str,
+    ) -> None:
+        with self._db() as conn:
+            row = conn.execute(
+                "SELECT status, purchase_order, received, invoice FROM cases WHERE id = ?",
+                (case_id,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"Case {case_id} not found")
+            if row["status"] != "NEEDS_CLARIFICATION":
+                raise ValueError(f"Case cannot be clarified from status {row['status']}")
+
+            purchase_order = json.loads(row["purchase_order"])
+            received = json.loads(row["received"])
+            invoice = json.loads(row["invoice"])
+            received["quantity"] = float(received_quantity)
+            received["unit"] = received_unit.strip()
+
+            comparison = compare_records(purchase_order, received, invoice)
+            proposed_action = self._propose_action(comparison)
+            conn.execute(
+                "UPDATE cases SET received = ?, comparison = ?, proposed_action = ?, status = ? WHERE id = ?",
+                (
+                    json.dumps(received),
+                    json.dumps(comparison),
+                    proposed_action,
+                    self._status_for(comparison),
+                    case_id,
+                ),
+            )
+            self._log(
+                conn,
+                case_id,
+                actor,
+                "CLARIFICATION_CONFIRMED",
+                f"Human confirmed receiving record as {float(received_quantity):g} {received_unit.strip()}.",
+            )
+            self._log(conn, case_id, "system", "COMPARISON_RECALCULATED", comparison["status"])
 
     def approve_case(self, case_id: int, actor: str, role: str) -> None:
         if role != "owner":
             raise PermissionError("Only an owner may approve a consequential action")
         with self._db() as conn:
-            row = conn.execute("SELECT status, proposed_action FROM cases WHERE id = ?", (case_id,)).fetchone()
+            row = conn.execute(
+                "SELECT status, proposed_action, comparison FROM cases WHERE id = ?",
+                (case_id,),
+            ).fetchone()
             if row is None:
                 raise KeyError(f"Case {case_id} not found")
             if row["status"] == "APPROVED":
                 return
+            comparison = json.loads(row["comparison"])
+            if not comparison.get("trust_gate", {}).get("approval_allowed", False):
+                raise ValueError("Trust Gate blocks approval until the case is safe to review")
             if row["status"] != "PENDING_APPROVAL":
                 raise ValueError(f"Case cannot be approved from status {row['status']}")
             conn.execute("UPDATE cases SET status = 'APPROVED' WHERE id = ?", (case_id,))
@@ -160,7 +233,9 @@ class OrderGuardService:
 
     def get_outbox(self) -> List[Dict[str, Any]]:
         with self._db() as conn:
-            rows = conn.execute("SELECT id, case_id, message, created_at FROM outbox ORDER BY id DESC").fetchall()
+            rows = conn.execute(
+                "SELECT id, case_id, message, created_at FROM outbox ORDER BY id DESC"
+            ).fetchall()
         return [dict(row) for row in rows]
 
     def get_activity(self, case_id: int) -> List[Dict[str, Any]]:
@@ -170,3 +245,21 @@ class OrderGuardService:
                 (case_id,),
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def get_dashboard_summary(self) -> Dict[str, Any]:
+        cases = self.list_cases()
+        status_counts: Dict[str, int] = {}
+        discrepancy_counts: Dict[str, int] = {}
+        for case in cases:
+            status_counts[case["status"]] = status_counts.get(case["status"], 0) + 1
+            for discrepancy in case["comparison"].get("discrepancies", []):
+                name = discrepancy["type"]
+                discrepancy_counts[name] = discrepancy_counts.get(name, 0) + 1
+        return {
+            "total": len(cases),
+            "pending": status_counts.get("PENDING_APPROVAL", 0),
+            "blocked": status_counts.get("NEEDS_CLARIFICATION", 0),
+            "approved": status_counts.get("APPROVED", 0),
+            "matched": status_counts.get("MATCHED", 0),
+            "discrepancies": discrepancy_counts,
+        }
