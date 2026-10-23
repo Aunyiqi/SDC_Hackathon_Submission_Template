@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Exception Report · Vortex OrderGuard{% endblock %}
+{% block content %}
+<div class="page-heading d-flex flex-wrap justify-content-between align-items-start gap-3">
+  <div><h1>Exception Report</h1><p class="text-secondary mb-0">A reusable supplier-exception view designed to fit an Orbyte-style reporting workflow.</p></div>
+  <span class="status-badge status-info">Synthetic demo data</span>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="metric-tile"><span>Total cases</span><strong>{{ summary.total }}</strong><small>all current demo cases</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-tile"><span>Awaiting owner</span><strong>{{ summary.pending }}</strong><small>review required</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-tile"><span>Repeat issues</span><strong>{{ summary.repeat_cases }}</strong><small>supplier + item pattern</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-tile"><span>Open money at risk</span><strong class="fs-3">RM{{ '%.2f'|format(summary.money_at_risk) }}</strong><small>not a payable amount</small></div></div>
+</div>
+
+<section class="panel mb-4">
+  <div class="panel-head"><div><h2>Supplier Exception Radar</h2><p>Prioritizes open operational exceptions while avoiding automatic supplier scoring or blacklisting.</p></div></div>
+  <div class="p-3 pt-0">
+  {% for supplier in supplier_radar %}
+    <div class="report-row">
+      <div class="report-main">
+        <strong>{{ supplier.supplier_name }}</strong>
+        <span>{{ supplier.total_cases }} case(s) · {{ supplier.exception_cases }} exception case(s){% if supplier.top_issue %} · top issue: {{ supplier.top_issue.replace('_',' ') }}{% endif %}</span>
+      </div>
+      <div class="report-risk"><strong>RM{{ '%.2f'|format(supplier.money_at_risk) }}</strong><span>open money at risk</span></div>
+      <div class="report-progress"><div class="progress" style="height:8px"><div class="progress-bar" style="width:{{ supplier.risk_percent }}%"></div></div></div>
+      <div>{% if supplier.repeat_cases %}<span class="status-badge status-warning">{{ supplier.repeat_cases }} repeat issue(s)</span>{% else %}<span class="status-badge status-success">No repeat issue</span>{% endif %}</div>
+    </div>
+  {% else %}<div class="empty-row">No supplier data yet.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><h2>Exception Mix</h2><p>Transparent rule outputs across current cases.</p></div></div>
+  <div class="p-3 pt-0">
+    {% for name, count in summary.discrepancies.items() %}<span class="exception-chip">{{ name.replace('_',' ') }} <b>{{ count }}</b></span>{% else %}<span class="text-secondary">No discrepancies recorded.</span>{% endfor %}
+  </div>
+</section>
+{% endblock %}
