@@ -97,6 +97,11 @@ class OrderGuardService:
         if comparison["status"] == "MATCH":
             return "No supplier clarification is required."
         if comparison["status"] == "NEEDS_CLARIFICATION":
+            if any(
+                entry["type"] == "ITEM_CLARIFICATION"
+                for entry in comparison["discrepancies"]
+            ):
+                return "Confirm and correct the source item identities before any comparison or supplier action."
             return "Confirm the unit or missing information before any supplier action."
         labels = [
             discrepancy["type"].replace("_", " ").title()
@@ -316,7 +321,15 @@ class OrderGuardService:
         difference = current["comparison"].get("difference")
         money_at_risk = round(abs(float(difference)), 2) if difference is not None else 0.0
 
-        if repeat_issue:
+        if (
+            current["comparison"].get("status") == "NEEDS_CLARIFICATION"
+            and "ITEM_CLARIFICATION" in current_types
+        ):
+            playbook = [
+                "Confirm and correct the source item identities.",
+                "Submit corrected source records as a new check; changing quantities or units cannot resolve an item mismatch.",
+            ]
+        elif repeat_issue:
             playbook = [
                 "Review the current evidence before contacting the supplier.",
                 "Reference the recurring discrepancy type in the clarification.",

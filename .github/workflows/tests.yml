@@ -4,7 +4,7 @@ on:
   push:
     branches: [vortex-orderguard-submission]
   pull_request:
-    branches: [main]
+    branches: [main, vortex-orderguard-submission]
 
 jobs:
   test:
