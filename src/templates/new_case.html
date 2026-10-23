@@ -5,10 +5,22 @@
   <div class="col-lg-9">
     <div class="mb-4">
       <h1 class="h3">New supplier check</h1>
-      <p class="text-secondary">Demo defaults reproduce the restaurant purchasing discrepancy used in the proposal.</p>
+      <p class="text-secondary">Use synthetic demo records. OrderGuard will compare the evidence and remember repeat issues for the same supplier and item.</p>
     </div>
     <form method="post" class="card shadow-sm">
       <div class="card-body p-4">
+        <div class="row g-3 mb-4">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Supplier name</label>
+            <input class="form-control" name="supplier_name" value="FreshFarm Foods" required>
+            <div class="form-text">Used only for synthetic Pattern Memory in this prototype.</div>
+          </div>
+          <div class="col-md-7">
+            <label class="form-label fw-semibold">Item</label>
+            <input id="item" class="form-control" name="item" value="Chicken" required>
+            <div class="form-text">Repeat detection matches the same supplier + item.</div>
+          </div>
+        </div>
         <div class="mb-4">
           <label class="form-label fw-semibold">Supplier message</label>
           <textarea id="supplier_message" class="form-control" rows="3" name="supplier_message" required>Delivered 8 kg chicken. Invoice 10 kg at RM13/kg.</textarea>
@@ -16,10 +28,6 @@
             <button id="extractButton" class="btn btn-sm btn-outline-primary" type="button">AI extract message</button>
             <span id="extractStatus" class="small text-secondary">AI suggestions must be confirmed by a person.</span>
           </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Item</label>
-          <input id="item" class="form-control" name="item" value="Chicken" required>
         </div>
         <div class="row g-3">
           <div class="col-md-4">
@@ -46,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-0 small">AI only proposes structured values from the supplier message. The staff member confirms the fields, while discrepancy calculations and workflow decisions are deterministic.</div>
+        <div class="alert alert-light border mt-3 mb-0 small">AI only proposes structured values from the supplier message. Staff confirm the fields; discrepancy calculations, Pattern Memory, Trust Gate and permissions are deterministic.</div>
       </div>
       <div class="card-footer bg-white d-flex justify-content-between p-3">
         <a class="btn btn-outline-secondary" href="{{ url_for('dashboard') }}">Cancel</a>
