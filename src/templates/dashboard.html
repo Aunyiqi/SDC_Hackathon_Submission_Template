@@ -16,7 +16,10 @@
 
 <section class="panel mb-4">
   <div class="panel-head d-flex flex-wrap justify-content-between align-items-center gap-3">
-    <div><h2>Pending Actions</h2><p>Cases that need clarification, review or an owner decision.</p></div>
+    <div>
+      <h2>Priority Action Queue</h2>
+      <p>Transparent P1/P2/P3 triage uses workflow blockers, open RM risk and recurring supplier exceptions. Priority never approves a case.</p>
+    </div>
     <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('checks') }}">View all checks ↗</a>
   </div>
   <div class="action-tabs">
@@ -27,22 +30,25 @@
   </div>
   <div class="table-responsive">
     <table class="table align-middle mb-0 action-table">
-      <thead><tr><th>Case</th><th>Supplier</th><th>Action required</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Priority</th><th>Case</th><th>Supplier</th><th>Why now</th><th>Status</th><th></th></tr></thead>
       <tbody>
-      {% set ns = namespace(count=0) %}
-      {% for case in cases %}
-        {% if case.status in ['NEEDS_CLARIFICATION','PENDING_APPROVAL'] %}
-          {% set ns.count = ns.count + 1 %}
-          <tr>
-            <td><strong>#{{ case.id }}</strong></td>
-            <td>{{ case.supplier_name }}</td>
-            <td>{{ 'Confirm ambiguous data' if case.status == 'NEEDS_CLARIFICATION' else 'Owner review and decision' }}</td>
-            <td><span class="status-badge status-{{ 'warning' if case.status == 'NEEDS_CLARIFICATION' else 'info' }}">{{ case.status.replace('_',' ') }}</span></td>
-            <td class="text-end"><a class="action-link" href="{{ url_for('case_detail', case_id=case.id) }}">Go to case ↗</a></td>
-          </tr>
-        {% endif %}
+      {% for case in pending_actions.queue %}
+        <tr>
+          <td>
+            <span class="badge rounded-pill {% if case.priority == 'P1' %}text-bg-danger{% elif case.priority == 'P2' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">{{ case.priority }}</span>
+          </td>
+          <td><strong>#{{ case.id }}</strong></td>
+          <td>{{ case.supplier_name }}</td>
+          <td>
+            <strong class="d-block small">{{ case.priority_reasons[0] }}</strong>
+            <small class="text-secondary">RM{{ '%.2f'|format(case.money_at_risk) }} open risk · deterministic triage score {{ case.priority_score }}</small>
+          </td>
+          <td><span class="status-badge status-{{ 'warning' if case.status == 'NEEDS_CLARIFICATION' else 'info' }}">{{ case.status.replace('_',' ') }}</span></td>
+          <td class="text-end"><a class="action-link" href="{{ url_for('case_detail', case_id=case.id) }}">Go to case ↗</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="empty-row">No open actions right now.</td></tr>
       {% endfor %}
-      {% if ns.count == 0 %}<tr><td colspan="5" class="empty-row">No pending actions right now.</td></tr>{% endif %}
       </tbody>
     </table>
   </div>
