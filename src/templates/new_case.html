@@ -1,102 +1,148 @@
 {% extends "base.html" %}
 {% block title %}New Check · Vortex OrderGuard{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-9">
-    <div class="mb-4">
-      <h1 class="h3">New supplier check</h1>
-      <p class="text-secondary">Use synthetic demo records. OrderGuard will compare the evidence and remember repeat issues for the same supplier and item.</p>
+<div class="page-heading">
+  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+    <div>
+      <h1>New Supplier Check</h1>
+      <p class="text-secondary mb-0">A guided check for supplier messages, purchase orders, receiving records and invoices.</p>
     </div>
-    <form method="post" class="card shadow-sm">
-      <div class="card-body p-4">
-        <div class="row g-3 mb-4">
-          <div class="col-md-5">
-            <label class="form-label fw-semibold">Supplier name</label>
-            <input class="form-control" name="supplier_name" value="FreshFarm Foods" required>
-            <div class="form-text">Used only for synthetic Pattern Memory in this prototype.</div>
-          </div>
-          <div class="col-md-7">
-            <label class="form-label fw-semibold">Item</label>
-            <input id="item" class="form-control" name="item" value="Chicken" required>
-            <div class="form-text">Repeat detection matches the same supplier + item.</div>
-          </div>
+    <span class="status-badge status-info">Synthetic demo data</span>
+  </div>
+</div>
+
+<div class="check-stepper mb-4" aria-label="Supplier check steps">
+  <div class="check-step active"><span>1</span><div><strong>Supplier message</strong><small>Capture the trigger</small></div></div>
+  <div class="check-step"><span>2</span><div><strong>Connected records</strong><small>PO + receiving + invoice</small></div></div>
+  <div class="check-step"><span>3</span><div><strong>Preview & submit</strong><small>See what needs attention</small></div></div>
+</div>
+
+<form id="supplierCheckForm" method="post">
+  <div class="row g-4 align-items-start">
+    <div class="col-xl-8">
+      <section class="panel mb-4">
+        <div class="panel-head border-bottom">
+          <h2>1 · Supplier message</h2>
+          <p>Start with the informal supplier message. AI can suggest structured values, but a person must confirm them.</p>
         </div>
-        <div class="mb-4">
+        <div class="p-3 p-lg-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">Supplier name</label>
+              <input class="form-control" name="supplier_name" value="FreshFarm Foods" required>
+              <div class="form-text">Used for synthetic Supplier Pattern Memory.</div>
+            </div>
+            <div class="col-md-7">
+              <label class="form-label fw-semibold">Item</label>
+              <input id="item" class="form-control" name="item" value="Chicken" required>
+              <div class="form-text">Repeat detection matches the same supplier + item.</div>
+            </div>
+          </div>
+
           <label class="form-label fw-semibold">Supplier message</label>
           <textarea id="supplier_message" class="form-control" rows="3" name="supplier_message" required>Delivered 8 kg chicken. Invoice 10 kg at RM13/kg.</textarea>
-          <div class="d-flex align-items-center gap-2 mt-2">
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
             <button id="extractButton" class="btn btn-sm btn-outline-primary" type="button">AI extract message</button>
             <span id="extractStatus" class="small text-secondary">AI suggestions must be confirmed by a person.</span>
           </div>
         </div>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <div class="border rounded p-3 h-100">
-              <h2 class="h6">Purchase order</h2>
-              <label class="form-label">Quantity</label><input class="form-control mb-2" type="number" step="0.01" name="po_quantity" value="10" required>
-              <label class="form-label">Unit</label><input class="form-control mb-2" name="po_unit" value="kg" required>
-              <label class="form-label">Agreed unit price (RM)</label><input class="form-control" type="number" step="0.01" name="po_price" value="12" required>
+      </section>
+
+      <section class="panel mb-4">
+        <div class="panel-head border-bottom">
+          <h2>2 · Connected records</h2>
+          <p>Enter the source values exactly as they appear. OrderGuard does not guess unit conversions.</p>
+        </div>
+        <div class="p-3 p-lg-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="record-card h-100">
+                <div class="record-card-title"><span>PO</span><strong>Purchase order</strong></div>
+                <label class="form-label">Quantity</label>
+                <input id="po_quantity" class="form-control mb-2" type="number" min="0" step="0.01" name="po_quantity" value="10" required>
+                <label class="form-label">Unit</label>
+                <input id="po_unit" class="form-control mb-2" name="po_unit" value="kg" required>
+                <label class="form-label">Agreed unit price (RM)</label>
+                <input id="po_price" class="form-control" type="number" min="0" step="0.01" name="po_price" value="12" required>
+              </div>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="border rounded p-3 h-100">
-              <h2 class="h6">Receiving record</h2>
-              <label class="form-label">Quantity received</label><input id="received_quantity" class="form-control mb-2" type="number" step="0.01" name="received_quantity" value="8" required>
-              <label class="form-label">Unit</label><input id="received_unit" class="form-control" name="received_unit" value="kg" required>
+            <div class="col-md-4">
+              <div class="record-card h-100">
+                <div class="record-card-title"><span>GR</span><strong>Receiving record</strong></div>
+                <label class="form-label">Quantity received</label>
+                <input id="received_quantity" class="form-control mb-2" type="number" min="0" step="0.01" name="received_quantity" value="8" required>
+                <label class="form-label">Unit</label>
+                <input id="received_unit" class="form-control" name="received_unit" value="kg" required>
+                <div class="form-text mt-2">If the source says “bags”, keep “bags”. Human clarification happens later.</div>
+              </div>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="border rounded p-3 h-100">
-              <h2 class="h6">Supplier invoice</h2>
-              <label class="form-label">Invoice quantity</label><input id="invoice_quantity" class="form-control mb-2" type="number" step="0.01" name="invoice_quantity" value="10" required>
-              <label class="form-label">Unit</label><input id="invoice_unit" class="form-control mb-2" name="invoice_unit" value="kg" required>
-              <label class="form-label">Invoice unit price (RM)</label><input id="invoice_price" class="form-control" type="number" step="0.01" name="invoice_price" value="13" required>
+            <div class="col-md-4">
+              <div class="record-card h-100">
+                <div class="record-card-title"><span>INV</span><strong>Supplier invoice</strong></div>
+                <label class="form-label">Invoice quantity</label>
+                <input id="invoice_quantity" class="form-control mb-2" type="number" min="0" step="0.01" name="invoice_quantity" value="10" required>
+                <label class="form-label">Unit</label>
+                <input id="invoice_unit" class="form-control mb-2" name="invoice_unit" value="kg" required>
+                <label class="form-label">Invoice unit price (RM)</label>
+                <input id="invoice_price" class="form-control" type="number" min="0" step="0.01" name="invoice_price" value="13" required>
+              </div>
             </div>
           </div>
         </div>
-        <div class="alert alert-light border mt-3 mb-0 small">AI only proposes structured values from the supplier message. Staff confirm the fields; discrepancy calculations, Pattern Memory, Trust Gate and permissions are deterministic.</div>
+      </section>
+
+      <div class="notice-strip mb-4">
+        <div>
+          <strong>AI does not decide the case</strong>
+          <span>AI only suggests structured values from the supplier message. Server-side rules recalculate discrepancies, Trust Gate status and permissions after submission.</span>
+        </div>
+        <span class="status-dot">HUMAN CONFIRMATION</span>
       </div>
-      <div class="card-footer bg-white d-flex justify-content-between p-3">
+
+      <div class="d-flex justify-content-between gap-3">
         <a class="btn btn-outline-secondary" href="{{ url_for('dashboard') }}">Cancel</a>
-        <button class="btn btn-primary" type="submit">Check records</button>
+        <button class="btn btn-primary px-4" type="submit">Run server check →</button>
       </div>
-    </form>
+    </div>
+
+    <div class="col-xl-4">
+      <aside class="panel preview-panel sticky-xl-top" style="top:1rem" aria-live="polite">
+        <div class="panel-head border-bottom">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <div>
+              <h2>Live Evidence Preview</h2>
+              <p>Instant browser feedback while you type.</p>
+            </div>
+            <span class="preview-only-badge">Browser preview only</span>
+          </div>
+        </div>
+        <div class="p-3 p-lg-4">
+          <div id="previewState" class="preview-state preview-waiting mb-3">
+            <span class="preview-dot"></span>
+            <strong id="previewStateText">Complete the evidence fields to preview the check.</strong>
+          </div>
+
+          <div class="preview-check-list">
+            <div class="preview-check"><span>Units</span><strong id="previewUnits">—</strong></div>
+            <div class="preview-check"><span>Quantity</span><strong id="previewQuantity">—</strong></div>
+            <div class="preview-check"><span>Price</span><strong id="previewPrice">—</strong></div>
+          </div>
+
+          <hr>
+          <div class="preview-money-grid">
+            <div><span>Received × agreed</span><strong id="previewReceivedAmount">—</strong></div>
+            <div><span>Invoice amount</span><strong id="previewInvoiceAmount">—</strong></div>
+            <div class="preview-difference"><span>Preview difference</span><strong id="previewDifference">—</strong></div>
+          </div>
+
+          <div class="small text-secondary mt-3">
+            This preview is for usability only. The Python backend recalculates the case after submission and remains the authoritative source for approval and audit actions.
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
-</div>
-<script>
-const button = document.getElementById('extractButton');
-const status = document.getElementById('extractStatus');
-button.addEventListener('click', async () => {
-  button.disabled = true;
-  status.textContent = 'Extracting…';
-  try {
-    const response = await fetch('/api/extract', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({message: document.getElementById('supplier_message').value})
-    });
-    const result = await response.json();
-    if (!result.ok) {
-      status.textContent = result.error;
-      return;
-    }
-    const data = result.data;
-    if (data.item) document.getElementById('item').value = data.item;
-    if (data.quantity !== null && data.quantity !== undefined) {
-      document.getElementById('received_quantity').value = data.quantity;
-    }
-    if (data.unit) {
-      document.getElementById('received_unit').value = data.unit;
-    }
-    if (data.unit_price !== null && data.unit_price !== undefined) {
-      document.getElementById('invoice_price').value = data.unit_price;
-    }
-    status.textContent = 'AI suggestion loaded. Please confirm every field before checking.';
-  } catch (error) {
-    status.textContent = 'AI extraction unavailable. Please use the manual fields.';
-  } finally {
-    button.disabled = false;
-  }
-});
-</script>
+</form>
+
+<script src="{{ url_for('static', filename='orderguard.js') }}"></script>
 {% endblock %}
