@@ -3,6 +3,13 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 
+def _norm_item(item: Any) -> str:
+    """Normalize names without guessing that similar products are equivalent."""
+    if not isinstance(item, str):
+        return ""
+    return " ".join(item.split()).casefold()
+
+
 def _norm_unit(unit: str) -> str:
     return (unit or "").strip().lower()
 
@@ -14,7 +21,7 @@ def _trust_gate(status: str, discrepancies: List[Dict[str, Any]]) -> Dict[str, A
             "score": 20,
             "level": "BLOCKED",
             "approval_allowed": False,
-            "reasons": ["Missing or incompatible units require human clarification."],
+            "reasons": [entry["message"] for entry in discrepancies],
         }
     if status == "MATCH":
         return {
@@ -47,12 +54,31 @@ def compare_records(
     received: Dict[str, Any],
     invoice: Dict[str, Any],
 ) -> Dict[str, Any]:
+    """Compare one identified item, blocking ambiguous records before arithmetic."""
+    items = [
+        _norm_item(record.get("item"))
+        for record in (purchase_order, received, invoice)
+    ]
     po_unit = _norm_unit(purchase_order.get("unit", ""))
     received_unit = _norm_unit(received.get("unit", ""))
     invoice_unit = _norm_unit(invoice.get("unit", ""))
 
+    discrepancies: List[Dict[str, Any]] = []
+    if not all(items) or len(set(items)) != 1:
+        discrepancies.append(
+            {
+                "type": "ITEM_CLARIFICATION",
+                "message": "Source item names are missing or do not match. Confirm and correct the source records before comparison.",
+                "evidence": {
+                    "purchase_order_item": purchase_order.get("item"),
+                    "received_item": received.get("item"),
+                    "invoice_item": invoice.get("item"),
+                },
+            }
+        )
+
     if not po_unit or not received_unit or not invoice_unit or len({po_unit, received_unit, invoice_unit}) > 1:
-        discrepancies = [
+        discrepancies.append(
             {
                 "type": "UNIT_CLARIFICATION",
                 "message": "Units do not match. A person must confirm the conversion before comparison.",
@@ -62,7 +88,9 @@ def compare_records(
                     "invoice_unit": invoice.get("unit"),
                 },
             }
-        ]
+        )
+
+    if discrepancies:
         status = "NEEDS_CLARIFICATION"
         return {
             "status": status,
@@ -79,7 +107,6 @@ def compare_records(
     po_price = float(purchase_order["unit_price"])
     invoice_price = float(invoice["unit_price"])
 
-    discrepancies: List[Dict[str, Any]] = []
     if received_qty != po_qty:
         discrepancies.append(
             {

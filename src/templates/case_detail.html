@@ -2,6 +2,7 @@
 {% block title %}Case #{{ case.id }} · Vortex OrderGuard{% endblock %}
 {% block content %}
 {% set gate = case.comparison.trust_gate %}
+{% set item_blocked = case.comparison.discrepancies|selectattr('type', 'equalto', 'ITEM_CLARIFICATION')|list %}
 <div class="d-flex justify-content-between align-items-start mb-4">
   <div><a class="small text-decoration-none" href="{{ url_for('dashboard') }}">← Dashboard</a><h1 class="h3 mt-2 mb-1">Case #{{ case.id }}</h1><span class="text-secondary">{{ case.supplier_name }} · {{ case.status.replace('_',' ') }}</span></div>
   <span class="trust-pill trust-{{ gate.level|lower }} fs-6">{{ gate.score }} · {{ gate.level }}</span>
@@ -28,9 +29,9 @@
   <div class="col-lg-8">
     <div class="card mb-4 shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Supplier evidence</div><div class="card-body"><blockquote class="mb-0">“{{ case.supplier_message }}”</blockquote></div></div>
     <div class="card mb-4 shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Connected records</div><div class="card-body"><div class="row g-3">
-      <div class="col-md-4"><div class="evidence-box"><span>Purchase order</span><strong>{{ case.purchase_order.quantity }} {{ case.purchase_order.unit }}</strong><small>RM{{ '%.2f'|format(case.purchase_order.unit_price) }} / {{ case.purchase_order.unit }}</small></div></div>
-      <div class="col-md-4"><div class="evidence-box"><span>Received</span><strong>{{ case.received.quantity }} {{ case.received.unit }}</strong><small>Human-confirmed receiving record</small></div></div>
-      <div class="col-md-4"><div class="evidence-box"><span>Invoice</span><strong>{{ case.invoice.quantity }} {{ case.invoice.unit }}</strong><small>RM{{ '%.2f'|format(case.invoice.unit_price) }} / {{ case.invoice.unit }}</small></div></div>
+      <div class="col-md-4"><div class="evidence-box"><span>Purchase order</span><small>{{ case.purchase_order.item|default('Missing item', true) }}</small><strong>{{ case.purchase_order.quantity }} {{ case.purchase_order.unit }}</strong><small>RM{{ '%.2f'|format(case.purchase_order.unit_price) }} / {{ case.purchase_order.unit }}</small></div></div>
+      <div class="col-md-4"><div class="evidence-box"><span>Received</span><small>{{ case.received.item|default('Missing item', true) }}</small><strong>{{ case.received.quantity }} {{ case.received.unit }}</strong><small>Human-confirmed receiving record</small></div></div>
+      <div class="col-md-4"><div class="evidence-box"><span>Invoice</span><small>{{ case.invoice.item|default('Missing item', true) }}</small><strong>{{ case.invoice.quantity }} {{ case.invoice.unit }}</strong><small>RM{{ '%.2f'|format(case.invoice.unit_price) }} / {{ case.invoice.unit }}</small></div></div>
     </div></div></div>
 
     <div class="card mb-4 shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Explainable rule check</div><div class="card-body">
@@ -45,8 +46,14 @@
     <div class="card mb-4 shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Owner Resolution Playbook</div><div class="card-body"><ol class="small mb-0 ps-3">{% for step in supplier_insight.playbook %}<li class="mb-2">{{ step }}</li>{% endfor %}</ol></div></div>
     <div class="card decision-card sticky-top shadow-sm border-0" style="top:1rem"><div class="card-header bg-white fw-semibold py-3">Human control</div><div class="card-body">
       {% if case.status == 'NEEDS_CLARIFICATION' %}
-        <div class="alert alert-danger small">Trust Gate has stopped the workflow. Confirm the receiving unit/quantity before any consequential action.</div>
-        <form method="post" action="{{ url_for('clarify_case', case_id=case.id) }}"><label class="form-label">Confirmed received quantity</label><input class="form-control mb-2" type="number" step="0.01" name="received_quantity" value="{{ case.received.quantity }}" required><label class="form-label">Confirmed unit</label><input class="form-control mb-3" name="received_unit" value="kg" required><button class="btn btn-dark w-100" type="submit">Confirm & recalculate</button></form>
+        {% if item_blocked %}
+          <div class="alert alert-danger small"><strong>Item identities need correction.</strong> Trust Gate has stopped comparison because source item names are missing or do not match.</div>
+          <p class="small">Confirm the items in the source records and submit corrected records as a new check. Changing quantities or units cannot resolve an item mismatch.</p>
+          <a class="btn btn-dark w-100" href="{{ url_for('new_case') }}">Submit corrected records</a>
+        {% else %}
+          <div class="alert alert-danger small">Trust Gate has stopped the workflow. Confirm the receiving unit/quantity before any consequential action.</div>
+          <form method="post" action="{{ url_for('clarify_case', case_id=case.id) }}"><label class="form-label">Confirmed received quantity</label><input class="form-control mb-2" type="number" step="0.01" name="received_quantity" value="{{ case.received.quantity }}" required><label class="form-label">Confirmed unit</label><input class="form-control mb-3" name="received_unit" value="kg" required><button class="btn btn-dark w-100" type="submit">Confirm & recalculate</button></form>
+        {% endif %}
       {% elif case.status == 'PENDING_APPROVAL' %}
         <div class="small text-secondary mb-2">Proposed clarification</div><p>{{ case.proposed_action }}</p><form method="post" action="{{ url_for('approve_case', case_id=case.id) }}" class="mb-3"><button class="btn btn-success w-100" type="submit">Approve clarification</button></form><form method="post" action="{{ url_for('reject_case', case_id=case.id) }}"><label class="form-label small">Reject reason</label><input class="form-control mb-2" name="reason" value="Need supplier call before action"><button class="btn btn-outline-danger w-100" type="submit">Reject</button></form>
       {% else %}<div class="alert alert-light border mb-0">Workflow state: <strong>{{ case.status.replace('_',' ') }}</strong></div>{% endif %}

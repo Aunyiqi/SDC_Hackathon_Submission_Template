@@ -61,6 +61,7 @@ See [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md) for the full walkthrough.
 
 ## Implemented MVP Features
 
+- Source-item identity validation before comparison: missing or mismatched item names block the Trust Gate; case and whitespace differences are normalized without fuzzy matching
 - Evidence-linked quantity and price discrepancy detection
 - Invoice quantity checks
 - Human clarification for incompatible/missing units
@@ -181,6 +182,8 @@ python -m unittest discover -s tests -v
 ```
 
 Automated coverage includes matching records, quantity/price discrepancies, ambiguous units, Trust Gate blocking, human clarification, owner-only approval, rejection without action, duplicate-action protection, repeat supplier-item issue detection and supplier-risk aggregation.
+
+Item-identity regression tests also cover missing, blank or non-text item names, mismatches in any source record, harmless case/spacing differences, combined item/unit ambiguity and blocked approval through both the service and web routes. Item-blocked cases require corrected source records to be submitted as a new check; quantity/unit clarification cannot bypass the item check.
 
 The repository also contains a GitHub Actions workflow for automated regression checks on `vortex-orderguard-submission`.
 
