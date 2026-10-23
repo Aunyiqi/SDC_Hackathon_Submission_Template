@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 
+from ai_extractor import AIExtractionUnavailable, extract_supplier_message
 from workflow import OrderGuardService
 
 
@@ -23,6 +24,20 @@ def _number(name: str) -> float:
 @app.get("/")
 def dashboard():
     return render_template("dashboard.html", cases=service.list_cases(), outbox=service.get_outbox())
+
+
+@app.post("/api/extract")
+def extract_message():
+    message = (request.get_json(silent=True) or {}).get("message", "").strip()
+    if not message:
+        return jsonify({"ok": False, "error": "Supplier message is required."}), 400
+    try:
+        data = extract_supplier_message(message)
+    except AIExtractionUnavailable as exc:
+        return jsonify({"ok": False, "error": str(exc), "fallback": "manual"}), 503
+    except Exception:
+        return jsonify({"ok": False, "error": "AI extraction failed. Please confirm the structured fields manually.", "fallback": "manual"}), 502
+    return jsonify({"ok": True, "data": data, "requires_human_confirmation": True})
 
 
 @app.route("/cases/new", methods=["GET", "POST"])
