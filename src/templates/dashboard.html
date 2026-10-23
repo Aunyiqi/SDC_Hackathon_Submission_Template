@@ -51,6 +51,38 @@
 </div>
 
 <div class="card mb-4 shadow-sm border-0">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <div><div class="fw-semibold">Supplier Exception Radar</div><div class="small text-secondary">Evidence-based attention view. It does not blacklist or score supplier quality.</div></div>
+    <span class="badge text-bg-dark">Live from current cases</span>
+  </div>
+  <div class="card-body">
+    {% for supplier in supplier_radar %}
+      <div class="border rounded-3 p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+          <div>
+            <div class="fw-bold">{{ supplier.supplier_name }}</div>
+            <div class="small text-secondary">{{ supplier.total_cases }} case(s) · {{ supplier.exception_cases }} exception case(s){% if supplier.top_issue %} · top issue: {{ supplier.top_issue.replace('_',' ') }}{% endif %}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold">RM{{ '%.2f'|format(supplier.money_at_risk) }}</div>
+            <div class="small text-secondary">open money at risk</div>
+          </div>
+        </div>
+        <div class="progress" role="progressbar" aria-label="Relative open money at risk" aria-valuenow="{{ supplier.risk_percent }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+          <div class="progress-bar" style="width: {{ supplier.risk_percent }}%"></div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          {% if supplier.repeat_cases %}<span class="badge rounded-pill text-bg-warning">{{ supplier.repeat_cases }} repeat issue(s)</span>{% endif %}
+          {% if supplier.exception_cases == 0 %}<span class="badge rounded-pill text-bg-success">No exceptions</span>{% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="text-secondary">Run the demo scenarios to populate the Supplier Exception Radar.</div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mb-4 shadow-sm border-0">
   <div class="card-header bg-white fw-semibold py-3">Cases</div>
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0"><thead><tr><th>Case</th><th>Supplier</th><th>Status</th><th>Trust Gate</th><th>Action</th><th></th></tr></thead><tbody>
