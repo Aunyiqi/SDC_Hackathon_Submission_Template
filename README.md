@@ -2,201 +2,188 @@
 
 **Check deliveries. Explain discrepancies. Keep owners in control.**
 
-Vortex OrderGuard is a proposed automation product for Malaysian micro and small businesses. It compares purchase orders, delivery records and supplier invoices, then prepares discrepancy reports for human review. The first demonstration will focus on restaurant purchasing.
+Vortex OrderGuard is a functional MVP for the SDC Hackathon 2026 Domain 2 — Orbyte Smart SME Challenge. It helps micro and small businesses compare purchase orders, receiving records and supplier invoices, surface explainable exceptions, and keep consequential actions behind human approval.
 
-> **Project status:** Concept agreed; implementation pending. This repository currently contains the competition starter template and project documentation. The features below are planned, not completed or deployed.
+> **Current MVP status:** Core comparison, Trust Gate, human clarification, owner approval/rejection, simulated outbox, activity log, dashboard analytics, demo scenarios and optional DeepSeek extraction are implemented on the `vortex-orderguard-mvp` branch. Replit deployment and competition submission evidence must still be completed by the team.
 
-## Team Information
+## Why OrderGuard
 
-| Field | Details |
+Small businesses often reconcile supplier messages, purchase orders, deliveries and invoices manually. A shortage, wrong unit or price change can be missed when records live in different places. OrderGuard turns that repeated checking into one reviewable workflow without allowing AI to make the final business decision.
+
+## Core Journey
+
+1. **Trigger** — staff submits supplier evidence and connected purchasing records.
+2. **Connected data** — purchase order, receiving record and invoice are compared together.
+3. **Decision logic** — deterministic rules identify quantity, invoice-quantity, price and unit exceptions.
+4. **Trust Gate** — a transparent rules-based score shows whether the case is clear, reviewable or blocked.
+5. **Human control** — ambiguous units must be clarified by a person; consequential supplier clarification requires owner approval.
+6. **Visible outcome** — approved clarification enters a simulated outbox and every step is recorded in the audit trail.
+
+## Innovation: OrderGuard Trust Gate
+
+The Trust Gate is a reusable safety layer between automation and action.
+
+- `CLEAR` — records match; no supplier action is needed.
+- `REVIEW` — records are comparable but discrepancies require owner review.
+- `BLOCKED` — data is ambiguous or incompatible, so approval is disabled until a person clarifies it.
+
+The Trust Gate score is a deterministic heuristic, **not an AI confidence probability**. This makes the reasoning easy to explain to judges and keeps the owner in control.
+
+## Judge Demo Scenarios
+
+The dashboard includes three one-click synthetic scenarios:
+
+| Scenario | What it demonstrates |
 | --- | --- |
-| Team name | Vortex |
-| Project name | Vortex OrderGuard |
-| Domain | Domain 2 — Orbyte Smart SME Challenge: Less Busywork, Better Business |
-| Primary SDG | SDG 8 — Decent Work and Economic Growth |
-| Relevant targets | 8.2: productivity through technological upgrading; 8.3: support for micro and small enterprises |
-| Team leader | To be confirmed |
-| University / institutions | To be confirmed for all members |
-| Number of members | To be confirmed |
+| Discrepancy | 10 kg chicken ordered at RM12/kg, 8 kg received, invoice at RM13/kg |
+| Ambiguous unit | PO/invoice use kg while receiving says “bags”; Trust Gate blocks approval |
+| Clean match | Connected records match and the system avoids unnecessary follow-up |
 
-## Problem
+For the ambiguous-unit case, confirm the receiving quantity/unit to demonstrate **blocked → human clarification → recalculation → owner review**.
 
-Small businesses may need to compare supplier messages, purchase orders, receiving records and invoices manually. Differences in quantities, prices, product names and units can make this work difficult.
+## Implemented MVP Features
 
-Our initial hypothesis is that a focused checking and approval workflow can reduce repeated checking and help staff resolve discrepancies consistently. The team still needs to validate this problem with SME owners or staff; no customer research results are claimed here.
+- Evidence-linked quantity and price discrepancy detection
+- Invoice quantity checks
+- Human clarification for incompatible/missing units
+- Explainable Trust Gate with `CLEAR`, `REVIEW` and `BLOCKED` states
+- Owner-only approval/rejection for consequential actions
+- Duplicate-approval protection using a unique outbox case constraint
+- Simulated supplier outbox (no real messages/payments)
+- Activity/audit history
+- Dashboard case metrics and exception pulse
+- Three one-click judge demo scenarios
+- Optional DeepSeek supplier-message extraction
+- Manual fallback when AI is unavailable
+- Human confirmation of AI-extracted fields before rule evaluation
+- SQLite demonstration storage
+- Responsive Flask/Bootstrap UI
 
-## Proposed Solution
+## AI Design
 
-OrderGuard will bring relevant records into one comparison, explain each discrepancy and prepare a proposed clarification request. An authorized owner will review, edit, approve or reject that request before it enters a simulated outbox.
+AI is used only where it adds value: converting informal supplier text into structured suggestions such as item, quantity, unit and price. It does **not** calculate discrepancies, approve actions, infer unit conversions or send supplier messages.
 
-AI will help extract structured information from informal supplier messages. Program rules will perform calculations, validate units, enforce permissions and control workflow transitions. Missing or ambiguous information will require clarification instead of a guessed answer.
+The application currently supports DeepSeek through `DEEPSEEK_API_KEY`. If no key is configured, users continue with the manual structured fields.
 
-## Core Automated Journey
+## Architecture
 
-| Stage | Planned behavior |
-| --- | --- |
-| Trigger | Staff submits a synthetic supplier message or delivery record. |
-| Connected data | The app loads the matching purchase order, agreed prices, receiving record and invoice. |
-| Decision logic | Rules compare quantities and prices; AI assists with extracting message content. |
-| Human approval | An owner reviews the evidence and approves, edits or rejects the proposed clarification. |
-| Visible outcome | An approved request appears in a simulated outbox; the case status and activity log update. |
+```text
+Supplier message / records
+          |
+          v
+Flask web UI ---- optional DeepSeek extraction
+          |
+          v
+Human-confirmed structured fields
+          |
+          v
+Deterministic discrepancy engine
+          |
+          v
+OrderGuard Trust Gate
+      /        \
+ BLOCKED      REVIEW
+    |            |
+Human clarify  Owner approve/reject
+    |            |
+    +--> Recalculate
+                 |
+                 v
+       Simulated outbox + audit log
+                 |
+              SQLite
+```
 
-A corrected supplier record will be checked again. The owner will confirm the resolution before the case closes.
+## Run Locally / Replit
 
-## Demonstration Scenario
+Install dependencies:
 
-All records in this example are synthetic.
+```bash
+pip install -r requirements.txt
+```
 
-| Record | Details |
-| --- | --- |
-| Purchase order | Chicken: 10 kg at RM12/kg |
-| Receiving record | 8 kg received |
-| Supplier invoice | 10 kg at RM13/kg = RM130 |
+Run:
 
-The comparison will flag:
+```bash
+python src/main.py
+```
 
-- A 2 kg difference between ordered and received quantities.
-- An invoiced unit price RM1/kg above the agreed price.
-- A received-goods comparison amount of RM96, calculated as 8 kg × RM12.
-- An RM34 difference between the invoice and that comparison amount, requiring review.
+Then open the URL provided by Replit, or locally open `http://127.0.0.1:5000`.
 
-RM96 is a comparison reference, not an automatic payment instruction or a determination of the final amount owed. Partial deliveries, delivery charges and other agreed terms may require further review.
+### Replit Secrets
 
-The owner can approve a clarification request asking the supplier to explain or correct the discrepancies. No real message or payment will be sent in the demo.
+Do not commit real keys. Configure these through Replit Secrets when used:
 
-## Planned MVP Features
+```text
+DEEPSEEK_API_KEY=...
+FLASK_SECRET_KEY=...
+```
 
-1. **Evidence-linked comparison:** Each flag identifies the source values and the rule that produced it.
-2. **Clarification for ambiguous inputs:** “Two bags” cannot be compared with kilograms until a person confirms the conversion.
-3. **Owner approval:** Staff can submit records; only an authorized owner can approve a consequential action.
-4. **Resolution tracking:** Cases remain open until corrected information is checked and the owner confirms resolution.
-5. **Activity history:** Record submissions, proposed actions, approvals, rejections and closure.
-6. **Duplicate-action protection:** Repeated approval clicks must not create duplicate outbox entries.
+Optional:
 
-### MVP Boundaries
+```text
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+```
 
-The first version will focus on one restaurant purchasing journey. It will not process real payments, submit statutory filings, provide legal or financial advice, or connect to live Orbyte or WhatsApp services.
+## Tests
 
-Roles and Orbyte interfaces may be simulated. The demo will use only team-created synthetic business records.
+Run:
 
-## Orbyte Fit and Reuse
+```bash
+python -m unittest discover -s tests -v
+```
 
-OrderGuard is intended as a purchasing exception module within a shared business hub. Assumed interfaces would provide purchase orders, supplier records and role information, while the module returns discrepancy cases, approval decisions and activity records.
+Coverage includes matching records, quantity/price discrepancies, ambiguous units, Trust Gate blocking, human clarification, owner-only approval, rejection, and duplicate-action protection.
 
-These are proposed integration assumptions, not verified live Orbyte APIs. A later version could adapt product mappings, units and review rules for retailers, cafes or other small businesses without rebuilding the core approval workflow.
+## Safety and Competition Boundaries
 
-## Proposed Technical Approach
+- Synthetic demo business data only
+- No real payment processing
+- No statutory filing
+- No legal or financial advice
+- No live WhatsApp/Orbyte integration claimed
+- Roles and Orbyte interfaces are simulated for the MVP
+- No API keys or credentials should be committed
+- RunPod is only required if the team uses GPU training, fine-tuning or GPU inference
 
-The following choices are proposals for implementation, not claims about the current starter code.
+## Orbyte Fit
 
-| Component | Proposed approach |
-| --- | --- |
-| User interface | Simple web screens for input, comparison, approval and case history |
-| Application | Python web backend, building on the starter repository |
-| Storage | SQLite for the demonstration |
-| Decision rules | Deterministic quantity, unit and price checks |
-| AI | Structured extraction from supplier messages; model choice pending |
-| Development / hosting | Replit; setup and proof of use pending |
-| GPU workload | RunPod if a GPU-based model is used; configuration pending |
+OrderGuard is designed as a reusable purchasing-exception module within a shared business hub. In a production Orbyte integration, upstream services could provide purchase orders, supplier records and role information, while OrderGuard would return discrepancy cases, approval decisions and audit events. The MVP uses team-created interface assumptions and does not claim access to live Orbyte APIs.
 
-If AI extraction is unavailable, the user will be able to enter and confirm structured fields manually. Any fallback will be visibly labeled.
+## Validation Still Required
 
-## Validation Plan
+The team still needs to complete real SME problem validation and measure a defensible baseline/KPI for the official preliminary proposal. Do not present estimated time savings as measured results.
 
-Test the same synthetic records manually and with the prototype. Record measured results rather than presenting estimates as achieved savings.
+Suggested measurements:
 
-| Measure | Planned method |
-| --- | --- |
-| Time per check | Compare manual and prototype completion times |
-| Discrepancy detection | Compare results with a hand-labeled set of known discrepancies |
-| Unnecessary alerts | Count flags on records that should match |
-| Ease of learning | Observe whether a new tester completes a check without formal training |
-| Approval control | Confirm that staff cannot approve and rejected actions do not execute |
-| Reliability | Test missing units, incomplete messages, repeat clicks and corrected records |
+- Manual check time vs prototype check time
+- Known discrepancy detection rate
+- False-alert count on matching records
+- First-time-user task completion
+- Approval-control and duplicate-action tests
 
-Results: not yet measured.
+## Submission Status
 
-## Data and Privacy
+Still required before the preliminary deadline:
 
-The demo will use synthetic supplier, order and invoice data only. API keys must be stored in server-side secrets and must not be committed.
+- Complete official `SDC2026_Vortex_Preliminary.pdf`
+- Complete `SDC2026_Vortex_TechDeclaration.pdf`
+- Deploy through the team's Replit account and retain proof of use
+- Add the official Replit/live prototype link
+- Prepare pitch deck
+- Record 5–7 minute YouTube pitch with prototype demo
+- Verify team details, workshop completion, eligibility and declarations
+- Verify all public links in an incognito window
 
-A real deployment would require business-level data isolation, role-based access, suitable retention and deletion controls, and a review of applicable Malaysian privacy requirements before handling real records.
+See `docs/VORTEX_SUBMISSION_GUIDE.md` for the detailed requirement mapping.
 
-## Repository and Submission Resources
+## Technical & AI Disclosure
 
-| Resource | Link / status |
-| --- | --- |
-| GitHub repository | https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template |
-| Official submission templates | https://drive.google.com/drive/folders/1xw7c2aN8N-at8hPEULzkcU76e_FFb0Ef |
-| Replit project | Not yet configured |
-| Live demo | Not yet deployed |
-| RunPod endpoint | Not yet configured |
-| Pitch deck | Not yet prepared |
-| Demonstration video | Not yet recorded |
+The project has used ChatGPT for substantial ideation, documentation and development assistance and this must be disclosed accurately in the Technical & Tools Declaration. The team remains responsible for reviewing, understanding, testing and adapting all generated material. The competition requires the team's own problem framing, solution decisions and explainability; the team should validate the SME problem and document its own decisions before submission.
 
-The existing starter folders are intended for source code (`src/`), supporting documentation (`docs/`), tests (`tests/`), GPU integration (`runpod/`) and submission files (`submission/`). Starter files are not evidence that the OrderGuard features have been implemented.
-
-## How to Run
-
-OrderGuard does not yet have verified run instructions. Setup, environment variables and test commands will be documented after the implementation is working and tested.
-
-## Technical and AI Disclosure
-
-ChatGPT proposed the OrderGuard direction during this conversation and drafted substantial project documentation; the user selected the direction. No independent team-originated problem framing, research or technical validation has been verified. The Orientation Slides require the core idea, solution design and technical decisions to originate from the team. Selection of an AI suggestion alone does not establish compliance. The team must disclose the actual assistance, develop and record its own reasoning and evidence, and ask the organizers whether this starting point is acceptable. Do not claim independent originality or completed review without evidence.
-
-The repository is based on the official [SDC Hackathon Submission Template](https://github.com/michaelzhngg/SDC_Hackathon_Submission_Template). Preserve its attribution and license. Document additional tools, models, APIs, libraries and reused materials as they are introduced.
-
-Replit is compulsory, and evidence from the team's own account must be included in the declaration. The supplied Orientation Slides explicitly state that GPU training, fine-tuning and inference must use RunPod. If the project has no GPU workload, accurately document that fact; do not invent RunPod usage or evidence. Replit setup and all runtime integrations remain pending.
-
-## Risks and Next Steps
-
-- Validate the purchasing problem with SME owners or staff.
-- Confirm team membership, responsibilities and organizer requirements.
-- Finalize the implementation design.
-- Build one complete comparison-to-resolution journey.
-- Keep AI extraction reviewable and provide manual entry for unclear inputs.
-- Measure accuracy, time and usability with synthetic test cases.
-- Prepare the required submission materials and verify access to every link.
-
-## Future Improvements
-
-- Additional product aliases and confirmed unit conversions.
-- More supplier document formats and languages.
-- Configurable rules for different SME sectors.
-- Real business-system connectors following permission and privacy review.
-
-## Official Submission Requirements
-
-**Preliminary deadline: 25 October 2026 at 07:59:59 MYT (UTC+8).** Submit through [sdchack.my](https://sdchack.my). The initial pitch is a recorded 5–7 minute YouTube video containing a working prototype demonstration, accompanied by an accessible functional prototype/build.
-
-Required items: official-template product proposal, pitch deck, functional prototype access, technical and tools declaration, public GitHub repository, and pitching video. A README alone is not a valid submission.
-
-Prepare `SDC2026_Vortex_Preliminary.pdf` and `SDC2026_Vortex_TechDeclaration.pdf`. Keep actual sponsor proof of use with the submission. Complete the official templates and respect their word limits; do not submit this README in their place.
-
-See [Submission preparation guide](docs/VORTEX_SUBMISSION_GUIDE.md) for the requirement mapping, word limits, evidence checklist and ordered next steps.
-
-Retain Apache License 2.0, add the designated committee accounts as collaborators, and preserve genuine development commits. Stop all modifications to the submitted repository after the deadline unless the organizers explicitly authorize them. The orientation instructs teams to keep development private and make the submission public; this repository is already a public fork. Repository visibility was not changed by this documentation update. If private development is needed, clarify the approved workflow with the organizers.
-
-## Submission Checklist
-
-- [x] Team name and project direction documented.
-- [ ] Team details, student eligibility and responsibilities confirmed.
-- [ ] Originality concern and AI assistance discussed with organizers; actual team decisions documented.
-- [ ] Mandatory GenAI, Database and Cloud Deployment workshop completion verified for all members.
-- [ ] Numeric baseline, KPI and percentage-based Phase 2 target supplied with evidence or explicit estimation assumptions.
-- [ ] Problem validation completed.
-- [ ] Working prototype and user interface available.
-- [ ] Core journey and exception cases tested.
-- [ ] Replit used and proof of use attached.
-- [ ] All GPU workloads use RunPod; usage evidence attached where applicable, otherwise non-use accurately explained.
-- [ ] Product requirements completed using the official template.
-- [ ] Technical and tools declaration completed.
-- [ ] Pitch deck completed.
-- [ ] 5–7 minute pitching video with prototype demonstration uploaded.
-- [ ] Demonstration links and repository access verified.
-- [ ] API keys and sensitive information excluded.
-- [ ] Submission documents renamed for Vortex and submitted through the official portal.
+This repository is based on the official SDC Hackathon Submission Template and retains its Apache License 2.0.
 
 ## License
 
-This repository retains the [Apache License 2.0](LICENSE) from the official starter template.
+Apache License 2.0 — see [LICENSE](LICENSE).
