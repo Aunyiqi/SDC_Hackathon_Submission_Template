@@ -191,6 +191,7 @@ class OrderGuardService:
         received_unit: str,
     ) -> None:
         with self._db() as conn:
+            conn.execute("BEGIN IMMEDIATE")
             row = conn.execute(
                 "SELECT status, purchase_order, received, invoice FROM cases WHERE id = ?",
                 (case_id,),
@@ -231,6 +232,8 @@ class OrderGuardService:
         if role != "owner":
             raise PermissionError("Only an owner may approve a consequential action")
         with self._db() as conn:
+            # Serialize the status check and write, including concurrent demo resets.
+            conn.execute("BEGIN IMMEDIATE")
             row = conn.execute(
                 "SELECT status, proposed_action, comparison FROM cases WHERE id = ?",
                 (case_id,),
@@ -262,6 +265,7 @@ class OrderGuardService:
         if role != "owner":
             raise PermissionError("Only an owner may reject a consequential action")
         with self._db() as conn:
+            conn.execute("BEGIN IMMEDIATE")
             row = conn.execute("SELECT status FROM cases WHERE id = ?", (case_id,)).fetchone()
             if row is None:
                 raise KeyError(f"Case {case_id} not found")
@@ -276,6 +280,17 @@ class OrderGuardService:
                 "SELECT id, case_id, message, created_at FROM outbox ORDER BY id DESC"
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def reset_demo(self, role: str) -> None:
+        """Clear synthetic workflow data atomically without replacing the database."""
+        if role != "owner":
+            raise PermissionError("Only an owner may reset synthetic demo data")
+        with self._db() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.execute("DELETE FROM outbox")
+            conn.execute("DELETE FROM activity_log")
+            conn.execute("DELETE FROM cases")
+        # Keep the ID sequence: stale tabs must not point to a new, unrelated case.
 
     def get_activity(self, case_id: int) -> List[Dict[str, Any]]:
         with self._db() as conn:

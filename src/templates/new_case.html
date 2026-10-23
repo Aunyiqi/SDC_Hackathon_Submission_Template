@@ -19,6 +19,7 @@
 </div>
 
 <form id="supplierCheckForm" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="row g-4 align-items-start">
     <div class="col-xl-8">
       <section class="panel mb-4">
@@ -41,10 +42,10 @@
           </div>
 
           <label class="form-label fw-semibold">Supplier message</label>
-          <textarea id="supplier_message" class="form-control" rows="3" name="supplier_message" required>Delivered 8 kg chicken. Invoice 10 kg at RM13/kg.</textarea>
+          <textarea id="supplier_message" class="form-control" rows="3" name="supplier_message" maxlength="4000" required>Delivered 8 kg chicken. Invoice 10 kg at RM13/kg.</textarea>
           <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
-            <button id="extractButton" class="btn btn-sm btn-outline-primary" type="button">AI extract message</button>
-            <span id="extractStatus" class="small text-secondary">AI suggestions must be confirmed by a person.</span>
+            <button id="extractButton" class="btn btn-sm btn-outline-primary" type="button" {% if not ai_enabled %}disabled{% endif %}>AI extract message</button>
+            <span id="extractStatus" class="small text-secondary">{% if ai_enabled %}AI suggestions must be confirmed by a person.{% else %}AI is not configured. The manual fields remain available.{% endif %}</span>
           </div>
         </div>
       </section>

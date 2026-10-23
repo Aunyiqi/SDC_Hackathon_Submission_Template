@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Owner Access · Vortex OrderGuard{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width:34rem">
+  <div class="panel-head">
+    <h1 class="h3">Demo owner access</h1>
+    <p>Unlock the synthetic demo controls for up to 30 minutes.</p>
+  </div>
+  <div class="p-3 p-lg-4">
+    {% if owner_access_configured %}
+      {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="{{ url_for('owner_login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="owner-access-code" class="form-label">Private owner access code</label>
+        <input id="owner-access-code" class="form-control mb-3" type="password" name="access_code" autocomplete="current-password" minlength="24" required>
+        <button class="btn btn-primary w-100" type="submit">Unlock demo controls</button>
+      </form>
+    {% else %}
+      <div class="alert alert-warning">Owner controls are not configured. The demo remains read-only.</div>
+      <p>Before running a demo, the project owner must configure <code>FLASK_SECRET_KEY</code> (at least 32 characters) and <code>ORDERGUARD_OWNER_ACCESS_CODE</code> (at least 24 characters) through Replit Secrets or server-side environment variables.</p>
+      <p>Use independent, randomly generated secrets. Do not put them in chat, source code, screenshots or the pitch recording.</p>
+    {% endif %}
+    <p class="small text-secondary mt-3 mb-0">This shared code protects demo controls; it is not individual user authentication or live Orbyte authorization. All displayed records must remain synthetic.</p>
+  </div>
+</section>
+{% endblock %}

@@ -57,11 +57,12 @@
 
 <section class="panel mb-4">
   <div class="panel-head"><div><h2>Judge Demo</h2><p>One-click synthetic cases for the full trigger → data → decision → approval → outcome journey.</p></div></div>
+  {% if not owner_unlocked %}<p class="px-3 text-secondary">Unlock owner controls before running or resetting demo scenarios.</p>{% endif %}
   <div class="row g-3 p-3 pt-0">
-    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='discrepancy') }}"><button class="scenario-card scenario-review w-100 text-start" type="submit"><strong>1 · Discrepancy</strong><span>Short delivery + higher price</span></button></form></div>
-    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='repeat') }}"><button class="scenario-card scenario-review w-100 text-start" type="submit"><strong>2 · Repeat issue</strong><span>Pattern memory activates</span></button></form></div>
-    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='ambiguous') }}"><button class="scenario-card scenario-blocked w-100 text-start" type="submit"><strong>3 · Ambiguous unit</strong><span>Trust Gate blocks guessing</span></button></form></div>
-    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='match') }}"><button class="scenario-card scenario-clear w-100 text-start" type="submit"><strong>4 · Clean match</strong><span>No unnecessary action</span></button></form></div>
+    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='discrepancy') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="scenario-card scenario-review w-100 text-start" type="submit" {% if not owner_unlocked %}disabled{% endif %}><strong>1 · Discrepancy</strong><span>Short delivery + higher price</span></button></form></div>
+    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='repeat') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="scenario-card scenario-review w-100 text-start" type="submit" {% if not owner_unlocked %}disabled{% endif %}><strong>2 · Repeat issue</strong><span>Pattern memory activates</span></button></form></div>
+    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='ambiguous') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="scenario-card scenario-blocked w-100 text-start" type="submit" {% if not owner_unlocked %}disabled{% endif %}><strong>3 · Ambiguous unit</strong><span>Trust Gate blocks guessing</span></button></form></div>
+    <div class="col-md-6 col-xl-3"><form method="post" action="{{ url_for('demo_scenario', scenario='match') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="scenario-card scenario-clear w-100 text-start" type="submit" {% if not owner_unlocked %}disabled{% endif %}><strong>4 · Clean match</strong><span>No unnecessary action</span></button></form></div>
   </div>
 </section>
 
@@ -88,4 +89,17 @@
     </section>
   </div>
 </div>
+{% if owner_unlocked %}
+<section class="panel mt-4">
+  <div class="panel-head"><h2>Demo maintenance</h2><p>Start a fresh rehearsal without replacing the database file.</p></div>
+  <form class="p-3 pt-0" method="post" action="{{ url_for('reset_demo') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-check mb-3">
+      <input class="form-check-input" id="reset-confirmation" type="checkbox" name="confirmation" value="reset-synthetic-data" required>
+      <label class="form-check-label" for="reset-confirmation">Clear all synthetic cases, simulated outbox entries and case audit history. This cannot be undone.</label>
+    </div>
+    <button class="btn btn-outline-danger" type="submit">Reset synthetic records</button>
+  </form>
+</section>
+{% endif %}
 {% endblock %}

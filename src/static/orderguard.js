@@ -118,7 +118,10 @@
       try {
         const response = await fetch('/api/extract', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content ?? ''
+          },
           body: JSON.stringify({message: byId('supplier_message').value})
         });
         const result = await response.json();

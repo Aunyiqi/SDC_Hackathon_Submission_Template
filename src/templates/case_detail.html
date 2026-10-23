@@ -45,17 +45,19 @@
   <div class="col-lg-4">
     <div class="card mb-4 shadow-sm border-0"><div class="card-header bg-white fw-semibold py-3">Owner Resolution Playbook</div><div class="card-body"><ol class="small mb-0 ps-3">{% for step in supplier_insight.playbook %}<li class="mb-2">{{ step }}</li>{% endfor %}</ol></div></div>
     <div class="card decision-card sticky-top shadow-sm border-0" style="top:1rem"><div class="card-header bg-white fw-semibold py-3">Human control</div><div class="card-body">
-      {% if case.status == 'NEEDS_CLARIFICATION' %}
+      {% if not owner_unlocked %}
+        <div class="alert alert-light border mb-0">Read-only demo. Unlock owner controls to clarify, approve or reject this case.</div>
+      {% elif case.status == 'NEEDS_CLARIFICATION' %}
         {% if item_blocked %}
           <div class="alert alert-danger small"><strong>Item identities need correction.</strong> Trust Gate has stopped comparison because source item names are missing or do not match.</div>
           <p class="small">Confirm the items in the source records and submit corrected records as a new check. Changing quantities or units cannot resolve an item mismatch.</p>
           <a class="btn btn-dark w-100" href="{{ url_for('new_case') }}">Submit corrected records</a>
         {% else %}
           <div class="alert alert-danger small">Trust Gate has stopped the workflow. Confirm the receiving unit/quantity before any consequential action.</div>
-          <form method="post" action="{{ url_for('clarify_case', case_id=case.id) }}"><label class="form-label">Confirmed received quantity</label><input class="form-control mb-2" type="number" step="0.01" name="received_quantity" value="{{ case.received.quantity }}" required><label class="form-label">Confirmed unit</label><input class="form-control mb-3" name="received_unit" value="kg" required><button class="btn btn-dark w-100" type="submit">Confirm & recalculate</button></form>
+          <form method="post" action="{{ url_for('clarify_case', case_id=case.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="form-label">Confirmed received quantity</label><input class="form-control mb-2" type="number" min="0" step="0.01" name="received_quantity" value="{{ case.received.quantity }}" required><label class="form-label">Confirmed unit</label><input class="form-control mb-3" name="received_unit" value="{{ case.received.unit }}" required><button class="btn btn-dark w-100" type="submit">Confirm & recalculate</button></form>
         {% endif %}
       {% elif case.status == 'PENDING_APPROVAL' %}
-        <div class="small text-secondary mb-2">Proposed clarification</div><p>{{ case.proposed_action }}</p><form method="post" action="{{ url_for('approve_case', case_id=case.id) }}" class="mb-3"><button class="btn btn-success w-100" type="submit">Approve clarification</button></form><form method="post" action="{{ url_for('reject_case', case_id=case.id) }}"><label class="form-label small">Reject reason</label><input class="form-control mb-2" name="reason" value="Need supplier call before action"><button class="btn btn-outline-danger w-100" type="submit">Reject</button></form>
+        <div class="small text-secondary mb-2">Proposed clarification</div><p>{{ case.proposed_action }}</p><form method="post" action="{{ url_for('approve_case', case_id=case.id) }}" class="mb-3"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-success w-100" type="submit">Approve clarification</button></form><form method="post" action="{{ url_for('reject_case', case_id=case.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="form-label small">Reject reason</label><input class="form-control mb-2" name="reason" value="Need supplier call before action"><button class="btn btn-outline-danger w-100" type="submit">Reject</button></form>
       {% else %}<div class="alert alert-light border mb-0">Workflow state: <strong>{{ case.status.replace('_',' ') }}</strong></div>{% endif %}
       <hr><p class="small text-secondary mb-0">No real payment or supplier message is sent. The outbox is simulated for the competition prototype.</p>
     </div></div>

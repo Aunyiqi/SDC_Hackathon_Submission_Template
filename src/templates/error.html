@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Request {{ status }} · Vortex OrderGuard{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head"><h1 class="h3">Request {{ status }}</h1></div>
+  <div class="p-3 p-lg-4">
+    <p role="alert">{{ message }}</p>
+    <a class="btn btn-outline-primary" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+  </div>
+</section>
+{% endblock %}
