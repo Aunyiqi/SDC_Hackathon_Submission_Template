@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 from discrepancy_engine import compare_records
 
@@ -18,8 +19,17 @@ class OrderGuardService:
         conn.row_factory = sqlite3.Row
         return conn
 
+    @contextmanager
+    def _db(self) -> Iterator[sqlite3.Connection]:
+        conn = self._connect()
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
+
     def _init_db(self) -> None:
-        with self._connect() as conn:
+        with self._db() as conn:
             conn.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS cases (
@@ -71,7 +81,7 @@ class OrderGuardService:
     ) -> int:
         comparison = compare_records(purchase_order, received, invoice)
         proposed_action = self._propose_action(comparison)
-        with self._connect() as conn:
+        with self._db() as conn:
             cur = conn.execute(
                 """INSERT INTO cases
                 (supplier_message, purchase_order, received, invoice, comparison, proposed_action, status, submitted_by, created_at)
@@ -103,7 +113,7 @@ class OrderGuardService:
         return "Please verify the following discrepancy/discrepancies: " + ", ".join(labels) + "."
 
     def get_case(self, case_id: int) -> Dict[str, Any]:
-        with self._connect() as conn:
+        with self._db() as conn:
             row = conn.execute("SELECT * FROM cases WHERE id = ?", (case_id,)).fetchone()
         if row is None:
             raise KeyError(f"Case {case_id} not found")
@@ -113,14 +123,14 @@ class OrderGuardService:
         return result
 
     def list_cases(self) -> List[Dict[str, Any]]:
-        with self._connect() as conn:
+        with self._db() as conn:
             rows = conn.execute("SELECT id, status, submitted_by, created_at, proposed_action FROM cases ORDER BY id DESC").fetchall()
         return [dict(row) for row in rows]
 
     def approve_case(self, case_id: int, actor: str, role: str) -> None:
         if role != "owner":
             raise PermissionError("Only an owner may approve a consequential action")
-        with self._connect() as conn:
+        with self._db() as conn:
             row = conn.execute("SELECT status, proposed_action FROM cases WHERE id = ?", (case_id,)).fetchone()
             if row is None:
                 raise KeyError(f"Case {case_id} not found")
@@ -139,7 +149,7 @@ class OrderGuardService:
     def reject_case(self, case_id: int, actor: str, role: str, reason: str) -> None:
         if role != "owner":
             raise PermissionError("Only an owner may reject a consequential action")
-        with self._connect() as conn:
+        with self._db() as conn:
             row = conn.execute("SELECT status FROM cases WHERE id = ?", (case_id,)).fetchone()
             if row is None:
                 raise KeyError(f"Case {case_id} not found")
@@ -149,12 +159,12 @@ class OrderGuardService:
             self._log(conn, case_id, actor, "REJECTED", reason or "No reason provided")
 
     def get_outbox(self) -> List[Dict[str, Any]]:
-        with self._connect() as conn:
+        with self._db() as conn:
             rows = conn.execute("SELECT id, case_id, message, created_at FROM outbox ORDER BY id DESC").fetchall()
         return [dict(row) for row in rows]
 
     def get_activity(self, case_id: int) -> List[Dict[str, Any]]:
-        with self._connect() as conn:
+        with self._db() as conn:
             rows = conn.execute(
                 "SELECT actor, action, details, created_at FROM activity_log WHERE case_id = ? ORDER BY id ASC",
                 (case_id,),
