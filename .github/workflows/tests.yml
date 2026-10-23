@@ -2,7 +2,7 @@ name: OrderGuard Tests
 
 on:
   push:
-    branches: [vortex-orderguard-mvp]
+    branches: [vortex-orderguard-submission]
   pull_request:
     branches: [main]
 
