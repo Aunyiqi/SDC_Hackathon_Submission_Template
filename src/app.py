@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 from pathlib import Path
 
@@ -30,8 +31,24 @@ def inject_demo_context():
     }
 
 
-def _number(name: str) -> float:
-    return float(request.form[name])
+def _required_text(name: str, label: str) -> str:
+    value = request.form.get(name, "").strip()
+    if not value:
+        raise ValueError(f"{label} is required.")
+    return value
+
+
+def _number(name: str, label: str) -> float:
+    raw = request.form.get(name, "").strip()
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        raise ValueError(f"{label} must be a number.") from None
+    if not math.isfinite(value):
+        raise ValueError(f"{label} must be a finite number.")
+    if value < 0:
+        raise ValueError(f"{label} cannot be negative.")
+    return value
 
 
 @app.get("/")
@@ -95,30 +112,42 @@ def extract_message():
 @app.route("/cases/new", methods=["GET", "POST"])
 def new_case():
     if request.method == "POST":
-        purchase_order = {
-            "item": request.form["item"].strip(),
-            "quantity": _number("po_quantity"),
-            "unit": request.form["po_unit"].strip(),
-            "unit_price": _number("po_price"),
-        }
-        received = {
-            "item": request.form["item"].strip(),
-            "quantity": _number("received_quantity"),
-            "unit": request.form["received_unit"].strip(),
-        }
-        invoice = {
-            "item": request.form["item"].strip(),
-            "quantity": _number("invoice_quantity"),
-            "unit": request.form["invoice_unit"].strip(),
-            "unit_price": _number("invoice_price"),
-        }
+        try:
+            supplier_name = _required_text("supplier_name", "Supplier name")
+            item = _required_text("item", "Item")
+            supplier_message = _required_text("supplier_message", "Supplier message")
+            po_unit = _required_text("po_unit", "Purchase order unit")
+            received_unit = _required_text("received_unit", "Receiving unit")
+            invoice_unit = _required_text("invoice_unit", "Invoice unit")
+
+            purchase_order = {
+                "item": item,
+                "quantity": _number("po_quantity", "Purchase order quantity"),
+                "unit": po_unit,
+                "unit_price": _number("po_price", "Agreed unit price"),
+            }
+            received = {
+                "item": item,
+                "quantity": _number("received_quantity", "Received quantity"),
+                "unit": received_unit,
+            }
+            invoice = {
+                "item": item,
+                "quantity": _number("invoice_quantity", "Invoice quantity"),
+                "unit": invoice_unit,
+                "unit_price": _number("invoice_price", "Invoice unit price"),
+            }
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return redirect(url_for("new_case"))
+
         case_id = service.create_case(
-            supplier_message=request.form["supplier_message"].strip(),
+            supplier_message=supplier_message,
             purchase_order=purchase_order,
             received=received,
             invoice=invoice,
             submitted_by="staff-demo",
-            supplier_name=request.form.get("supplier_name", "Demo Supplier").strip(),
+            supplier_name=supplier_name,
         )
         return redirect(url_for("case_detail", case_id=case_id))
     return render_template("new_case.html")
@@ -187,8 +216,8 @@ def clarify_case(case_id: int):
         service.clarify_case(
             case_id,
             actor="owner-demo",
-            received_quantity=_number("received_quantity"),
-            received_unit=request.form["received_unit"].strip(),
+            received_quantity=_number("received_quantity", "Confirmed received quantity"),
+            received_unit=_required_text("received_unit", "Confirmed unit"),
         )
         flash("Human clarification recorded. The case was recalculated.", "success")
     except (ValueError, KeyError) as exc:
