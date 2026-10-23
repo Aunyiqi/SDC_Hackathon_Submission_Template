@@ -1,0 +1,6 @@
+runpod>=1.7,<2
+easyocr>=1.7,<2
+opencv-python-headless>=4.10,<5
+Pillow>=10,<12
+requests>=2.32,<3
+numpy>=1.26,<3
