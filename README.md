@@ -23,28 +23,17 @@ Vortex OrderGuard is a functional SME purchasing-exception MVP that compares pur
 - [`SDC2026_Vortex_Runpod_POU.pdf`](submission/SDC2026_Vortex_Runpod_POU.pdf)
 - [`SDC2026_Vortex_TechDeclaration.pdf`](submission/SDC2026_Vortex_TechDeclaration.pdf)
 
-## Current MVP Status
+## Project Snapshot
 
-The latest competition version is on the **`vortex-orderguard-submission`** branch.
+The competition build is maintained on the **`vortex-orderguard-submission`** branch and is deployed as a public Replit demo.
 
-**Implemented:**
+**Core workflow** — OrderGuard compares purchase orders, receiving records and supplier invoices using deterministic rules, then explains quantity, price, item and unit exceptions through the Trust Gate.
 
-- ✅ Published Replit live demo
-- ✅ Deterministic PO / receiving / invoice comparison
-- ✅ Explainable Trust Gate (`CLEAR`, `REVIEW`, `BLOCKED`)
-- ✅ Human clarification for ambiguous units
-- ✅ Owner approval / rejection
-- ✅ Money at Risk
-- ✅ Supplier Pattern Memory
-- ✅ Supplier Exception Radar
-- ✅ Activity / audit history
-- ✅ Simulated supplier outbox
-- ✅ Optional DeepSeek extraction with manual fallback
-- ✅ RunPod GPU OCR proof of use
-- ✅ GitHub Actions regression tests
-- ✅ Preliminary, Replit POU, RunPod POU and Technical Declaration PDFs
-- ✅ YouTube demo video
-- ⏳ Final public Slide Deck link
+**Supplier intelligence** — Money at Risk, Supplier Pattern Memory and Supplier Exception Radar help owners prioritize cases and recognize recurring supplier-item issues without automatically penalising suppliers.
+
+**Human control** — ambiguous evidence requires clarification, consequential actions require owner approval or rejection, and every simulated action is recorded in the audit history and outbox.
+
+**Prototype & evidence** — the project includes a published Replit demo, optional DeepSeek-assisted extraction, RunPod GPU OCR proof of use, GitHub Actions regression tests, the required submission PDFs and a YouTube demo video.
 
 ## The Problem
 
@@ -272,21 +261,11 @@ python -m unittest discover -s tests -v
 
 Regression coverage includes matching records, quantity and price discrepancies, ambiguous units, Trust Gate blocking, human clarification, owner-only actions, duplicate-action protection, supplier patterns, item identity validation and security controls.
 
-## Submission Status
+## Submission Materials
 
-| Item | Status |
-| --- | --- |
-| Functional prototype | ✅ Complete |
-| Public Replit deployment | ✅ Complete |
-| GitHub repository | ✅ Public |
-| Preliminary PDF | ✅ In `submission/` |
-| Replit Proof of Use | ✅ In `submission/` |
-| RunPod Proof of Use | ✅ In `submission/` |
-| Technical Tools Declaration | ✅ In `submission/` |
-| YouTube Demo | ✅ https://www.youtube.com/watch?v=Mn3d2Ra77_Q |
-| Slide Deck | ⏳ Final public link not added yet |
+The repository contains the official project proposal, Replit proof of use, RunPod proof of use and Technical Tools Declaration in [`submission/`](submission/). The public demo is hosted on Replit, and the recorded prototype walkthrough is available on [YouTube](https://www.youtube.com/watch?v=Mn3d2Ra77_Q).
 
-Submission links: [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md)
+The final public Slide Deck link will be added to [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) once published.
 
 ## Technical & AI Disclosure
 
