@@ -1,11 +1,11 @@
-run = "python src/main.py"
+run = "bash -lc 'python -m venv .venv && .venv/bin/python -m pip install --disable-pip-version-check -r requirements.txt && exec .venv/bin/python src/main.py'"
 entrypoint = "src/main.py"
 
 [nix]
 channel = "stable-24_05"
 
 packager.language = "python3"
-packager.ignoredPaths = ["runpod", ".git", ".github"]
+packager.ignoredPaths = ["runpod", ".git", ".github", ".venv"]
 packager.ignoredPackages = ["runpod", "easyocr", "torch", "torchvision", "cv2", "PIL"]
 
 [packager.features]
@@ -14,6 +14,6 @@ packageSearch = false
 enabledForHosting = false
 
 [deployment]
-build = "python -m pip install --upgrade pip && python -m pip install --no-cache-dir -r requirements.txt"
-run = ["python", "src/main.py"]
+build = "python -m venv .venv && .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r requirements.txt"
+run = [".venv/bin/python", "src/main.py"]
 deploymentTarget = "cloudrun"
