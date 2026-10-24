@@ -2,9 +2,29 @@
 
 > **AI-assisted supplier discrepancy control for smarter SME purchasing**
 
-**Team:** Vortex  
-**Challenge:** SDC Hackathon 2026 — Domain 2: Orbyte Smart SME Challenge  
-**Theme:** Less Busywork, Better Business
+## Overview
+
+| | |
+| --- | --- |
+| **Team Name** | Vortex |
+| **Selected Domain** | Domain 2 — Orbyte Smart SME Challenge: Less Busywork, Better Business |
+| **Selected SDG** | SDG 8 — Decent Work and Economic Growth |
+| **Project** | OrderGuard |
+| **Live Demo** | [Open Vortex OrderGuard](https://sdc-hackathon-submission-template.replit.app) |
+| **Demo Video** | [Watch on YouTube](https://www.youtube.com/watch?v=Mn3d2Ra77_Q) |
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| **Frontend** | HTML, CSS, JavaScript | Web interface and user interaction |
+| **Backend** | Python 3, Flask | Routes, validation, business logic and workflow |
+| **Database** | SQLite | Synthetic cases, findings, audit history and supplier patterns |
+| **AI Extraction** | DeepSeek API | Optional supplier-message extraction with manual fallback |
+| **GPU OCR** | RunPod Serverless, EasyOCR | Optional document text extraction |
+| **Hosting** | Replit | Public live prototype deployment |
+| **Version Control** | GitHub | Source code and submission repository |
+| **CI / Testing** | GitHub Actions, Python `unittest` | Automated regression and security checks |
 
 ## Project Links
 
@@ -159,7 +179,7 @@ Proof of use: [`docs/RUNPOD_PROOF_OF_USE.md`](docs/RUNPOD_PROOF_OF_USE.md)
 
 OrderGuard uses a lightweight web architecture that deliberately separates extraction, deterministic comparison and human approval.
 
-### Tech stack
+### Detailed tech stack
 
 | Layer | Technology | Purpose |
 | --- | --- | --- |
