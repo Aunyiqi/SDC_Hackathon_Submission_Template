@@ -1,3 +1,4 @@
+
 # Vortex OrderGuard
 
 > **AI-assisted supplier discrepancy control for smarter SME purchasing**
@@ -30,7 +31,8 @@
 
 - **Live demo:** [Open Vortex OrderGuard](https://sdc-hackathon-submission-template.replit.app)
 - **Video presentation:** [Watch on YouTube](https://www.youtube.com/watch?v=Mn3d2Ra77_Q)
-- **GitHub repository:** [View source code](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template)
+- **Pitch deck:** [View PDF](submission/SDC2026_Vortex_Pitch_Deck.pdf)
+- **GitHub repository:** [View source code](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template/tree/vortex-orderguard-submission)
 - **RunPod proof:** [View RunPod proof of use](docs/RUNPOD_PROOF_OF_USE.md)
 
 ## 1. Project Overview
@@ -199,12 +201,12 @@ Supplier message / documents
           |
           v
      Flask Web UI
-      /        \
-     v          v
-DeepSeek     RunPod OCR
-(optional)   (optional)
-      \        /
-       v      v
+       /        \
+      v          v
+ DeepSeek     RunPod OCR
+ (optional)   (optional)
+       \        /
+        v      v
 Human-confirmed structured fields
           |
           v
@@ -212,20 +214,20 @@ PO + Receiving + Invoice
           |
           v
 Deterministic Comparison Engine
-       /                   \
-      v                     v
- Trust Gate          Pattern Memory
-      |                     |
-      +------> Money at Risk / Radar
-      |
+        /                   \
+       v                     v
+  Trust Gate          Pattern Memory
+       |                     |
+       +------> Money at Risk / Radar
+       |
 CLEAR / REVIEW / BLOCKED
-      |
+       |
 Human clarify or owner approve / reject
-      |
-      v
+       |
+       v
 Simulated Outbox + Audit Log
-      |
-    SQLite
+       |
+     SQLite
 ```
 
 The architecture ensures AI output remains input to the workflow rather than the authority that decides what happens next.
@@ -309,6 +311,7 @@ The official competition files are stored in [`submission/`](submission/):
 - [`SDC2026_Vortex_Replit_POU.pdf`](submission/SDC2026_Vortex_Replit_POU.pdf)
 - [`SDC2026_Vortex_Runpod_POU.pdf`](submission/SDC2026_Vortex_Runpod_POU.pdf)
 - [`SDC2026_Vortex_TechDeclaration.pdf`](submission/SDC2026_Vortex_TechDeclaration.pdf)
+- [`SDC2026_Vortex_Pitch_Deck.pdf`](submission/SDC2026_Vortex_Pitch_Deck.pdf)
 
 Recorded prototype walkthrough: [YouTube Demo](https://www.youtube.com/watch?v=Mn3d2Ra77_Q)
 
