@@ -21,10 +21,8 @@ RUN python -m pip install --no-cache-dir --no-deps \
 COPY runpod/requirements.txt /app/requirements.txt
 RUN python -m pip install --no-cache-dir -r /app/requirements.txt
 
-# Pre-download the English EasyOCR model during image build so the first
-# serverless request does not need to fetch model weights.
-RUN python -c "import easyocr; easyocr.Reader(['en'], gpu=False)"
-
+# EasyOCR model weights are downloaded lazily when the first worker starts.
+# This avoids long/stalled model downloads during Docker image builds.
 COPY runpod/handler.py /app/handler.py
 
 CMD ["python", "-u", "/app/handler.py"]
