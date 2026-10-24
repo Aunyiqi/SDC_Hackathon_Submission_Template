@@ -3,3 +3,8 @@ entrypoint = "src/main.py"
 
 [nix]
 channel = "stable-24_05"
+
+[deployment]
+build = "python -m pip install -r requirements.txt"
+run = ["python", "src/main.py"]
+deploymentTarget = "cloudrun"
