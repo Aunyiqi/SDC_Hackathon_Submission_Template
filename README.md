@@ -1,164 +1,147 @@
 # Vortex OrderGuard
 
-**Check deliveries. Explain discrepancies. Remember patterns. Keep owners in control.**
+> **AI-assisted supplier discrepancy control for smarter SME purchasing**
 
-> **SDC Hackathon 2026 — Domain 2: Orbyte Smart SME Challenge · Less Busywork, Better Business**
+**Team:** Vortex  
+**Challenge:** SDC Hackathon 2026 — Domain 2: Orbyte Smart SME Challenge  
+**Theme:** Less Busywork, Better Business
 
-Vortex OrderGuard is a functional SME purchasing-exception MVP that compares purchase orders, receiving records and supplier invoices, highlights explainable mismatches, remembers repeated supplier-item issues and keeps consequential actions behind human approval.
+## Project Links
 
-## Quick Links
+- **Live demo:** [Open Vortex OrderGuard](https://sdc-hackathon-submission-template.replit.app)
+- **Video presentation:** [Watch on YouTube](https://www.youtube.com/watch?v=Mn3d2Ra77_Q)
+- **GitHub repository:** [View source code](https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template)
+- **RunPod proof:** [View RunPod proof of use](docs/RUNPOD_PROOF_OF_USE.md)
 
-| Resource | Link | Status |
-| --- | --- | --- |
-| **Live Demo** | https://sdc-hackathon-submission-template.replit.app | ✅ Published |
-| **Demo Video** | https://www.youtube.com/watch?v=Mn3d2Ra77_Q | ✅ Available |
-| **GitHub Repository** | https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template | ✅ Public |
-| **RunPod Serverless API** | `POST https://api.runpod.ai/v2/ojf4e2o9yj00cy/runsync` | ✅ Working authenticated API |
-| **Slide Deck** | Pending final public link | ⏳ Pending |
+## 1. Project Overview
 
-### Submission PDFs
+### The problem
 
-- [`SDC2026_Vortex_Preliminary.pdf`](submission/SDC2026_Vortex_Preliminary.pdf)
-- [`SDC2026_Vortex_Replit_POU.pdf`](submission/SDC2026_Vortex_Replit_POU.pdf)
-- [`SDC2026_Vortex_Runpod_POU.pdf`](submission/SDC2026_Vortex_Runpod_POU.pdf)
-- [`SDC2026_Vortex_TechDeclaration.pdf`](submission/SDC2026_Vortex_TechDeclaration.pdf)
+Small and micro businesses often receive purchasing information across supplier messages, purchase orders, receiving records and invoices. When quantities, units or prices do not match, staff must manually compare multiple records before deciding what needs attention.
 
-## Project Snapshot
+The challenge is not only detecting a mismatch. Owners also need to understand **why** a case is risky, which cases should be reviewed first, whether the same supplier-item problem has happened before, and when human clarification is required before any action is taken.
 
-The competition build is maintained on the **`vortex-orderguard-submission`** branch and is deployed as a public Replit demo.
+OrderGuard focuses on this exception-review gap by turning disconnected purchasing evidence into one explainable workflow.
 
-**Core workflow** — OrderGuard compares purchase orders, receiving records and supplier invoices using deterministic rules, then explains quantity, price, item and unit exceptions through the Trust Gate.
+### Target users
 
-**Supplier intelligence** — Money at Risk, Supplier Pattern Memory and Supplier Exception Radar help owners prioritize cases and recognize recurring supplier-item issues without automatically penalising suppliers.
+- **Primary users:** SME owners and staff who review supplier deliveries, purchase orders and invoices.
+- **Operational users:** Staff responsible for receiving goods, checking invoices or preparing supplier follow-up.
+- **Decision maker:** The owner remains responsible for consequential approval or rejection.
 
-**Human control** — ambiguous evidence requires clarification, consequential actions require owner approval or rejection, and every simulated action is recorded in the audit history and outbox.
+### Our solution
 
-**Prototype & evidence** — the project includes a published Replit demo, optional DeepSeek-assisted extraction, RunPod GPU OCR proof of use, GitHub Actions regression tests, the required submission PDFs and a YouTube demo video.
+Vortex OrderGuard is a functional purchasing-exception MVP that compares purchase orders, receiving records and supplier invoices using deterministic rules.
 
-## The Problem
+It highlights quantity, price, item and unit discrepancies, calculates a visible **Money at Risk** signal, remembers repeated supplier-item issues through **Supplier Pattern Memory**, and uses an explainable **Trust Gate** to decide whether a case is clear, reviewable or blocked pending human clarification.
 
-Small businesses often receive purchasing information across messages, purchase orders, delivery / receiving records and supplier invoices. When quantities, units or prices do not match, staff must manually compare multiple records before deciding what to do.
+AI and OCR reduce data-entry friction, but they do not make the final business decision.
 
-OrderGuard focuses on the **exception-review step**: make mismatches visible, explain why they matter, surface recurring supplier-item issues and ensure a person remains responsible for the final action.
+### Core feature set
 
-## The Solution
+| Feature | What OrderGuard does |
+| --- | --- |
+| **Dashboard & Priority Queue** | Shows cases that need attention, open money at risk and review priority. |
+| **Supplier Checks** | Compares purchase-order, receiving and invoice evidence in one place. |
+| **Trust Gate** | Classifies cases as `CLEAR`, `REVIEW` or `BLOCKED` using explainable deterministic rules. |
+| **Human Clarification** | Stops approval when units or evidence are ambiguous until a person confirms the information. |
+| **Money at Risk** | Converts open discrepancies into an RM comparison signal for prioritisation. |
+| **Supplier Pattern Memory** | Surfaces repeated issue patterns for the same supplier and item. |
+| **Supplier Exception Radar** | Aggregates recurring exceptions and open risk across suppliers. |
+| **Owner Approval** | Keeps consequential actions behind explicit human approval or rejection. |
+| **Audit History** | Records case activity and simulated outcomes for traceability. |
+| **Optional AI / OCR** | Uses DeepSeek and RunPod OCR only as extraction assistance with manual fallback. |
 
-```text
-Supplier message / documents
-          |
-          v
-Optional AI / OCR extraction
-          |
-          v
-Human-confirmed structured fields
-          |
-          v
-PO + Receiving + Invoice
-          |
-          v
-Deterministic comparison engine
-       /                 \
-      v                   v
- Trust Gate        Pattern Memory
-      |                   |
-      +------> Money at Risk / Radar
-      |
-BLOCKED / REVIEW / CLEAR
-      |
-Human clarify OR owner approve / reject
-      |
-      v
-Simulated outbox + audit log
-```
+## 2. User Flow and Demo
 
-## What Makes OrderGuard Different
+### Core workflow
 
-### 1. Explainable Trust Gate
+`Capture Evidence -> Compare Records -> Explain Exceptions -> Trust Gate -> Human Clarification -> Owner Decision -> Audit`
 
-The Trust Gate separates automation from business action.
+The end-to-end flow is:
 
-- **CLEAR** — connected records match; no supplier action is needed.
-- **REVIEW** — records are comparable but a discrepancy requires owner review.
-- **BLOCKED** — information is ambiguous or incompatible, so approval is disabled until a person clarifies it.
+1. A user enters a supplier message and structured purchasing evidence.
+2. OrderGuard connects the purchase order, receiving record and invoice.
+3. Deterministic rules compare quantity, price, item identity and unit consistency.
+4. The system explains every detected exception.
+5. Money at Risk and supplier history help prioritise the case.
+6. The Trust Gate classifies the case as `CLEAR`, `REVIEW` or `BLOCKED`.
+7. Ambiguous information must be clarified by a person.
+8. The owner approves or rejects the consequential action.
+9. Approved demo actions enter a simulated outbox and every step remains visible in the audit trail.
 
-The Trust Gate is a deterministic rules-based heuristic, **not an AI confidence score**.
-
-### 2. Supplier Pattern Memory
-
-OrderGuard remembers repeated discrepancy types for the same supplier + item combination. It helps the owner notice recurring operational issues without automatically blacklisting or penalising suppliers.
-
-### 3. Money at Risk
-
-Open discrepancies are translated into a visible RM comparison signal so the owner can prioritize which cases deserve attention first. It is not a payment instruction or final amount owed.
-
-### 4. Supplier Exception Radar
-
-Reports aggregate supplier exception activity, open risk and repeated patterns so owners can see where attention is needed.
-
-### 5. AI Assists — Humans Decide
-
-AI and OCR are used only to reduce data-entry friction. They do **not** approve cases, calculate final business decisions, infer unsafe unit conversions, blacklist suppliers or send live supplier messages.
-
-## Main Demo Flow
-
-1. Open the published Replit demo.
-2. Unlock the synthetic demo controls using the private owner code.
-3. Show the **Dashboard** and priority queue.
-4. Open **Supplier Checks** or create a **New Check**.
-5. Compare PO, receiving and invoice evidence.
-6. Explain quantity / price / unit discrepancies.
-7. Show **Trust Gate** result.
-8. If blocked, perform human clarification and recalculate.
-9. Approve or reject as the owner.
-10. Show the simulated outbox and audit history.
-11. Open **Reports** to show supplier patterns and Money at Risk.
-
-Full walkthrough: [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md)
-
-## Judge Demo Scenarios
+### Judge demo scenarios
 
 | Scenario | What it demonstrates |
 | --- | --- |
-| **1 · Discrepancy** | 10 kg chicken ordered at RM12/kg, 8 kg received, invoice at RM13/kg |
-| **2 · Repeat issue** | Same supplier + item repeats an exception; Pattern Memory surfaces it |
-| **3 · Ambiguous unit** | PO / invoice use kg while receiving says `bags`; Trust Gate blocks approval |
-| **4 · Clean match** | Records match and the system avoids unnecessary follow-up |
+| **Discrepancy** | 10 kg chicken ordered at RM12/kg, 8 kg received, invoice at RM13/kg. |
+| **Repeat issue** | The same supplier and item repeat an exception, triggering Pattern Memory. |
+| **Ambiguous unit** | PO and invoice use kg while receiving says `bags`; Trust Gate blocks approval. |
+| **Clean match** | Connected records match and no unnecessary follow-up is created. |
 
-Recommended presentation sequence: **Discrepancy → Repeat issue → Ambiguous unit → Clean match**.
+Recommended demo sequence:
 
-## Implemented Features
+`Discrepancy -> Repeat Issue -> Ambiguous Unit -> Clean Match`
 
-- Evidence-linked quantity and price discrepancy detection
-- Invoice quantity checks
-- Source-item identity validation
-- Human clarification for incompatible or missing units
-- Trust Gate with `CLEAR`, `REVIEW` and `BLOCKED`
-- Owner-only approval and rejection
-- Read-only public demo with expiring owner-control sessions
-- CSRF protection on mutations
-- Duplicate-approval protection
-- Simulated supplier outbox
-- Activity / audit history
-- Supplier Pattern Memory
-- Money at Risk aggregation
-- Supplier Exception Radar
-- Four one-click synthetic demo scenarios
-- Optional DeepSeek supplier-message extraction
-- Manual fallback when AI is unavailable
-- Human confirmation before rule evaluation
-- SQLite demonstration storage
-- Responsive Flask UI
-- GitHub Actions automated regression tests
+Full walkthrough: [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md)
 
-## RunPod GPU OCR
+## 3. What Makes OrderGuard Different
 
-OrderGuard includes a server-side RunPod OCR integration path for document extraction.
+### Explainable Trust Gate
 
-- **Provider:** RunPod Serverless
-- **OCR:** EasyOCR
-- **Verified GPU test:** NVIDIA GeForce RTX 5090
-- **Role:** extraction only
-- **Final decision authority:** deterministic OrderGuard rules + human approval
+The Trust Gate separates automation from business action.
+
+- **CLEAR** — connected records match and no supplier action is needed.
+- **REVIEW** — records are comparable but a discrepancy requires owner review.
+- **BLOCKED** — information is ambiguous or incompatible, so approval is disabled until a person clarifies it.
+
+The Trust Gate is a deterministic rules-based heuristic, not an AI confidence score.
+
+### Supplier Pattern Memory
+
+OrderGuard remembers repeated discrepancy types for the same supplier-item combination. This helps owners notice recurring operational problems without automatically blacklisting or penalising suppliers.
+
+### Money at Risk
+
+Open discrepancies are translated into a visible RM comparison signal so owners can prioritise which cases deserve attention first. It is not a payment instruction or final amount owed.
+
+### Supplier Exception Radar
+
+Reports combine supplier exception activity, repeated patterns and open risk so the owner can see where attention is concentrated.
+
+### AI assists, humans decide
+
+AI and OCR are used only to reduce data-entry friction. They do **not** approve cases, calculate final business decisions, infer unsafe unit conversions, blacklist suppliers or send real supplier messages.
+
+`Extract -> Validate -> Compare -> Explain -> Human Decides`
+
+## 4. Prototype and Deployment
+
+### Live prototype
+
+The functional prototype is publicly deployed on Replit:
+
+**https://sdc-hackathon-submission-template.replit.app**
+
+Public visitors can inspect the synthetic demo in read-only mode. Data-changing actions require a private, expiring owner-control session.
+
+### Replit deployment
+
+Replit is used to host and publish the competition prototype. The deployed application runs the Flask web application and exposes the live judge demo.
+
+Proof of use: [`docs/REPLIT_PROOF_OF_USE.md`](docs/REPLIT_PROOF_OF_USE.md)
+
+### RunPod GPU OCR
+
+RunPod Serverless provides the optional GPU-assisted OCR path used for document extraction.
+
+| Item | Implementation |
+| --- | --- |
+| Provider | RunPod Serverless |
+| OCR library | EasyOCR |
+| Verified GPU test | NVIDIA GeForce RTX 5090 |
+| Endpoint role | Extraction only |
+| Decision authority | OrderGuard deterministic rules + human approval |
 
 Authenticated invocation format:
 
@@ -168,75 +151,112 @@ Authorization: Bearer <RUNPOD_API_KEY>
 Content-Type: application/json
 ```
 
-The API key is intentionally not committed to the repository.
+The API key is stored only as a server-side secret and is not committed to the repository.
 
-Proof: [`docs/RUNPOD_PROOF_OF_USE.md`](docs/RUNPOD_PROOF_OF_USE.md)
+Proof of use: [`docs/RUNPOD_PROOF_OF_USE.md`](docs/RUNPOD_PROOF_OF_USE.md)
 
-## Replit Deployment
+## 5. Technical Architecture and Feasibility
 
-**Live demo:** https://sdc-hackathon-submission-template.replit.app
+OrderGuard uses a lightweight web architecture that deliberately separates extraction, deterministic comparison and human approval.
 
-The application is publicly deployed on Replit. Public visitors can inspect the synthetic demo in read-only mode. Data-changing actions require the private demo-owner access code.
+### Tech stack
 
-Proof: [`docs/REPLIT_PROOF_OF_USE.md`](docs/REPLIT_PROOF_OF_USE.md)
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| Frontend | HTML, CSS, JavaScript | Web interface and interaction. |
+| Backend | Python 3 + Flask | Routes, validation, workflow and business logic. |
+| Database | SQLite | Stores synthetic cases, findings, audit history and supplier patterns. |
+| AI extraction | DeepSeek API | Optional supplier-message extraction into structured suggestions. |
+| GPU OCR | RunPod Serverless + EasyOCR | Optional document text extraction. |
+| Hosting | Replit | Public live prototype deployment. |
+| Version control | GitHub | Source control and submission repository. |
+| CI / testing | GitHub Actions + Python `unittest` | Automated regression and security checks. |
 
-## Technology Stack
+### System architecture
 
-| Layer | Technology |
-| --- | --- |
-| Backend | Python 3, Flask |
-| Frontend | HTML, CSS, JavaScript |
-| Demo database | SQLite |
-| AI extraction | DeepSeek API (optional) |
-| GPU OCR | RunPod Serverless + EasyOCR |
-| Hosting | Replit |
-| Version control | GitHub |
-| CI / tests | GitHub Actions + Python `unittest` |
+```text
+Supplier message / documents
+          |
+          v
+     Flask Web UI
+      /        \
+     v          v
+DeepSeek     RunPod OCR
+(optional)   (optional)
+      \        /
+       v      v
+Human-confirmed structured fields
+          |
+          v
+PO + Receiving + Invoice
+          |
+          v
+Deterministic Comparison Engine
+       /                   \
+      v                     v
+ Trust Gate          Pattern Memory
+      |                     |
+      +------> Money at Risk / Radar
+      |
+CLEAR / REVIEW / BLOCKED
+      |
+Human clarify or owner approve / reject
+      |
+      v
+Simulated Outbox + Audit Log
+      |
+    SQLite
+```
 
-## Orbyte Alignment
+The architecture ensures AI output remains input to the workflow rather than the authority that decides what happens next.
+
+## 6. Safety and Human Control
+
+OrderGuard is intentionally conservative around consequential actions.
+
+- Synthetic business data is used for the public demo.
+- Public visitors are read-only by default.
+- Owner controls use a private, expiring session.
+- Data-changing routes use CSRF protection.
+- Ambiguous units block approval until human clarification.
+- Duplicate approval is prevented by workflow constraints.
+- AI output is validated and can be replaced with manual input.
+- No real payments are processed.
+- No real supplier messages are sent.
+- No supplier is automatically blacklisted or penalised.
+- No API keys or organiser credentials are committed.
+
+## 7. Orbyte Alignment
 
 OrderGuard is designed as a reusable purchasing-exception module for the **Orbyte ecosystem**.
 
 For this hackathon MVP:
 
-- Orbyte organization context and roles are simulated.
+- Orbyte organisation context and roles are simulated.
 - No live Orbyte API integration is claimed.
-- The prototype works independently using synthetic data.
+- The prototype operates independently with synthetic data.
 - Potential future inputs include suppliers, purchase orders, receiving records, invoices and role information.
 - Potential outputs include exception cases, clarification requests, approval decisions and audit events.
 
 See [`docs/ORBYTE_PLATFORM_NOTE.md`](docs/ORBYTE_PLATFORM_NOTE.md).
 
-## Safety Boundaries
+## 8. Repository and Testing
 
-- Synthetic business data only
-- No real payment processing
-- No real supplier messages
-- No statutory filing
-- No legal, tax or financial advice
-- No automatic supplier blacklist
-- No live Orbyte integration claimed
-- No API keys or organizer credentials committed
-- Consequential actions remain human-controlled
-
-## Run Locally
-
-Install web dependencies:
+### Run locally
 
 ```bash
 python -m venv .venv
 .venv/bin/python -m pip install -r requirements.web.txt
-```
-
-Run:
-
-```bash
 .venv/bin/python src/main.py
 ```
 
-Then open `http://127.0.0.1:5000`.
+Then open:
 
-Required server-side environment variables for owner controls:
+```text
+http://127.0.0.1:5000
+```
+
+Required server-side environment variables:
 
 ```text
 FLASK_SECRET_KEY
@@ -253,27 +273,34 @@ RUNPOD_ENDPOINT_ID
 
 Never commit real secret values.
 
-## Tests
+### Tests
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Regression coverage includes matching records, quantity and price discrepancies, ambiguous units, Trust Gate blocking, human clarification, owner-only actions, duplicate-action protection, supplier patterns, item identity validation and security controls.
+Regression coverage includes clean matches, quantity and price discrepancies, item-identity checks, ambiguous units, Trust Gate blocking, human clarification, owner-only actions, duplicate-action protection, supplier-pattern detection and security controls.
 
-## Submission Materials
+## 9. Submission Materials
 
-The repository contains the official project proposal, Replit proof of use, RunPod proof of use and Technical Tools Declaration in [`submission/`](submission/). The public demo is hosted on Replit, and the recorded prototype walkthrough is available on [YouTube](https://www.youtube.com/watch?v=Mn3d2Ra77_Q).
+The official competition files are stored in [`submission/`](submission/):
 
-The final public Slide Deck link will be added to [`docs/SUBMISSION_LINKS.md`](docs/SUBMISSION_LINKS.md) once published.
+- [`SDC2026_Vortex_Preliminary.pdf`](submission/SDC2026_Vortex_Preliminary.pdf)
+- [`SDC2026_Vortex_Replit_POU.pdf`](submission/SDC2026_Vortex_Replit_POU.pdf)
+- [`SDC2026_Vortex_Runpod_POU.pdf`](submission/SDC2026_Vortex_Runpod_POU.pdf)
+- [`SDC2026_Vortex_TechDeclaration.pdf`](submission/SDC2026_Vortex_TechDeclaration.pdf)
 
-## Technical & AI Disclosure
+Recorded prototype walkthrough: [YouTube Demo](https://www.youtube.com/watch?v=Mn3d2Ra77_Q)
 
-ChatGPT and Replit Agent were used for substantial ideation, documentation and development assistance. The team remains responsible for reviewing, understanding, testing and adapting generated material. External AI, cloud services, tools, libraries and sponsor resources must be declared accurately in the official Technical Tools Declaration.
+## 10. Technical and AI Disclosure
 
-The repository is based on the official SDC Hackathon Submission Template and retains the **Apache License 2.0**.
+ChatGPT and Replit Agent were used for substantial ideation, documentation and development assistance. The team remains responsible for reviewing, understanding, testing and adapting generated material.
 
-## Research References
+External AI services, cloud platforms, libraries, models and development-assistance tools used by the project are declared in the official Technical Tools Declaration.
+
+This repository is based on the official SDC Hackathon Submission Template and retains the **Apache License 2.0**.
+
+## 11. Research References
 
 1. Department of Statistics Malaysia — [MSMEs Performance 2025](https://www.dosm.gov.my/portal-main/release-content/micro-small--medium-enterprises-msmes-performance-2025)
 2. World Bank — [Digitalizing SMEs to Boost Competitiveness](https://www.worldbank.org/en/country/malaysia/publication/digitalizing-smes-to-boost-competitiveness)
