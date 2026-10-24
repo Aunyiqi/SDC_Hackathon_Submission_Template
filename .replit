@@ -1,4 +1,4 @@
-run = "bash -lc 'python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check -r requirements.txt && exec .venv/bin/python src/main.py'"
+run = "bash -lc 'python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check -r requirements.web.txt && exec .venv/bin/python src/main.py'"
 entrypoint = "src/main.py"
 
 [nix]
@@ -14,6 +14,6 @@ packageSearch = false
 enabledForHosting = false
 
 [deployment]
-build = "python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r requirements.txt"
+build = "python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r requirements.web.txt"
 run = ["bash", "-lc", "exec .venv/bin/gunicorn --chdir src --bind 0.0.0.0:${PORT:-5000} --workers 2 --threads 2 --timeout 120 app:app"]
 deploymentTarget = "cloudrun"
