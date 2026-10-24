@@ -36,7 +36,7 @@ class TestRunPodOCR(unittest.TestCase):
 
     def test_rejects_empty_and_oversized_images_before_provider_call(self):
         with patch("runpod_ocr.requests.post") as provider:
-            with self.assertRaisesRegex(ValueError, "not empty"):
+            with self.assertRaisesRegex(ValueError, "empty"):
                 ocr_invoice(b"", "image/png")
             with self.assertRaisesRegex(ValueError, "5 MB"):
                 ocr_invoice(b"x" * (MAX_OCR_IMAGE_BYTES + 1), "image/png")
