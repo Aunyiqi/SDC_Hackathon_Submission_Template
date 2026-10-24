@@ -15,5 +15,5 @@ enabledForHosting = false
 
 [deployment]
 build = "python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r requirements.txt"
-run = [".venv/bin/python", "src/main.py"]
+run = ["bash", "-lc", "exec .venv/bin/gunicorn --chdir src --bind 0.0.0.0:${PORT:-5000} --workers 2 --threads 2 --timeout 120 app:app"]
 deploymentTarget = "cloudrun"
