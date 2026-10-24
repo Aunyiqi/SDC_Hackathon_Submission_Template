@@ -1,4 +1,4 @@
-run = "bash -lc 'python -m venv .venv && .venv/bin/python -m pip install --disable-pip-version-check -r requirements.txt && exec .venv/bin/python src/main.py'"
+run = "bash -lc 'python -m venv .venv && .venv/bin/python -m pip --isolated install --disable-pip-version-check -r requirements.txt && exec .venv/bin/python src/main.py'"
 entrypoint = "src/main.py"
 
 [nix]
@@ -14,6 +14,6 @@ packageSearch = false
 enabledForHosting = false
 
 [deployment]
-build = "python -m venv .venv && .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r requirements.txt"
+build = "python -m venv .venv && .venv/bin/python -m pip --isolated install --disable-pip-version-check --no-cache-dir -r requirements.txt"
 run = [".venv/bin/python", "src/main.py"]
 deploymentTarget = "cloudrun"
