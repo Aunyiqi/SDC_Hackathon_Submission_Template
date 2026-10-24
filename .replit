@@ -4,7 +4,16 @@ entrypoint = "src/main.py"
 [nix]
 channel = "stable-24_05"
 
+packager.language = "python3"
+packager.ignoredPaths = ["runpod", ".git", ".github"]
+packager.ignoredPackages = ["runpod", "easyocr", "torch", "torchvision", "cv2", "PIL"]
+
+[packager.features]
+guessImports = false
+packageSearch = false
+enabledForHosting = false
+
 [deployment]
-build = "python -m pip install -r requirements.txt"
+build = "python -m pip install --upgrade pip && python -m pip install --no-cache-dir -r requirements.txt"
 run = ["python", "src/main.py"]
 deploymentTarget = "cloudrun"
