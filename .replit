@@ -1,3 +1,4 @@
+language = "python3"
 run = "bash -lc 'python -m venv .venv && env PIP_CONFIG_FILE=/dev/null PIP_USER=false .venv/bin/python -m pip install --disable-pip-version-check -r requirements.web.txt && exec .venv/bin/python src/main.py'"
 entrypoint = "src/main.py"
 modules = ["python-base-3.13"]
