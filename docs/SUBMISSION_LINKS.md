@@ -9,28 +9,23 @@
 | GitHub Repository | https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template | ✅ Ready |
 | Live Demo | https://sdc-hackathon-submission-template.replit.app | ✅ Published |
 | RunPod Serverless API | `POST https://api.runpod.ai/v2/ojf4e2o9yj00cy/runsync` | ✅ Authenticated API endpoint |
-| RunPod Proof of Use | https://github.com/Aunyiqi/SDC_Hackathon_Submission_Template/blob/vortex-orderguard-submission/docs/RUNPOD_PROOF_OF_USE.md | ✅ Evidence available |
-| Slide Deck | Pending | ⏳ To complete |
-| Demo Video | Pending | ⏳ To complete |
+| Replit Proof of Use | `submission/SDC2026_Vortex_Replit_POU.pdf` | ✅ Ready |
+| RunPod Proof of Use | `submission/SDC2026_Vortex_Runpod_POU.pdf` | ✅ Ready |
+| Preliminary Proposal | `submission/SDC2026_Vortex_Preliminary.pdf` | ✅ Ready |
+| Technical Declaration | `submission/SDC2026_Vortex_TechDeclaration.pdf` | ✅ Ready |
+| Demo Video | https://www.youtube.com/watch?v=Mn3d2Ra77_Q | ✅ Available |
+| Slide Deck | Pending final public link | ⏳ Pending |
 
-## Notes
+## Important Notes
 
-- The live Replit deployment uses synthetic demo records only.
-- The RunPod Serverless endpoint is an authenticated **POST API**, not a normal browser page. Opening the base URL in a browser sends a GET request and is not a valid endpoint test.
-- RunPod authentication credentials/API keys are intentionally not included in this public repository.
-- RunPod is used for GPU-assisted OCR inference. It does not approve or reject supplier cases.
-- OCR output is treated as extraction input; OrderGuard applies deterministic comparison rules, the Trust Gate, and human approval before consequential actions.
-- Slide Deck and Demo Video links will be added after the final pitch materials are completed.
+- The Replit deployment uses synthetic demo records only.
+- Public visitors can inspect the demo in read-only mode; owner mutations require the private owner access code.
+- The RunPod endpoint is an authenticated **POST API**, not a normal browser webpage.
+- RunPod authentication credentials and API keys are intentionally excluded from the public repository.
+- GPU OCR provides extraction input only. OrderGuard applies deterministic comparison logic, the Trust Gate and human approval before consequential actions.
+- The Slide Deck row will be updated when a final public share link is available.
 
-## Proof of Use
-
-- Replit proof: `docs/REPLIT_PROOF_OF_USE.md`
-- RunPod proof: `docs/RUNPOD_PROOF_OF_USE.md`
-- Live demo: https://sdc-hackathon-submission-template.replit.app
-
-## RunPod invocation format
-
-The Serverless endpoint is called server-side with authentication, for example:
+## RunPod Invocation
 
 ```text
 POST https://api.runpod.ai/v2/ojf4e2o9yj00cy/runsync
@@ -38,4 +33,4 @@ Authorization: Bearer <RUNPOD_API_KEY>
 Content-Type: application/json
 ```
 
-The API key is stored only as a server-side secret and must never be committed to GitHub or placed in public submission materials.
+Never place the API key in GitHub, the pitch deck, YouTube description or public submission materials.
